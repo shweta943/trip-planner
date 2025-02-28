@@ -1,22 +1,14 @@
+/* eslint-disable no-unused-vars */
 // import { useState } from 'react'
-import Button from '@mui/material/Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css'
-import LoginFormModal from './components/LoginForm';
+import HomeHeroSection from './components/HomeHeroSection';
 
 const App = () => {
-  
-  const [ formModal, setFormModal ] = useState(false);
   return (
     <>
-      <h1>Hello there!!!</h1>
-      <h2>Lets get an Itenary designed for you!!</h2>
-      <Button variant="outlined" onClick={() => setFormModal(true)}>Sign Up</Button>
-
-      {formModal && (
-        <LoginFormModal />
-      )}
+      <HomeHeroSection />
     </>
   )
 }
-export default App;
+export default App
