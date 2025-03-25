@@ -1,7 +1,11 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { Backdrop, Modal, Fade, Box, DialogTitle, DialogContent } from '@mui/material';
+import { Backdrop, Modal, Fade, Box, Tab, Tabs } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { auth } from '../config/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import PropTypes from 'prop-types';
+import travelImage from '../assets/Images/travel-2.avif';
 
 const style = {
     position: 'absolute',
@@ -9,25 +13,30 @@ const style = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 400,
+    height: 400,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
 };
 
+// eslint-disable-next-line react/prop-types
 const SignUpModal = ({ open, onFormClose }) => {
 
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
+    const [loginEmail, setLoginEmail] = useState('');
+    const [signUpEmail, setSignUpEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [isSignUp, setIsSignUp] = useState(false);
+    // const [isSignUp, setIsSignUp] = useState(false);
+    const [tabVal, setTabVal] = useState(0);
+    // const [errorMessage, setErrorMessage] = useState('');
 
     const handleCreateUser = async (e) => {
         e.preventDefault();
         try {
-            const response = await createUserWithEmailAndPassword(auth, email, password);
-            console.log('response: ', response);
+            await createUserWithEmailAndPassword(auth, signUpEmail, password);
+            alert('User created Successfully!!');
         } catch (error) {
             console.error(error)
         }
@@ -35,17 +44,48 @@ const SignUpModal = ({ open, onFormClose }) => {
     const handleSignIn = async (e) => {
         e.preventDefault();
         try {
-            const response = await signInWithEmailAndPassword(auth, email, password);
-            console.log('signinresponse: ', response);
+            await signInWithEmailAndPassword(auth, loginEmail, password);
+            alert('Login Successfully!!')
         } catch (error) {
             console.error(error)
         }
     }
-
-    const toggleForm = () => {
-        setIsSignUp(false);
+    const handleTabChange = (event, newVal) => {
+        setTabVal(newVal);
+    }
+    const handleNameChange = (name) => {
+        console.log('name: ', name);
+        setName(name);
     }
 
+    function CustomTabPanel (props) {
+        const { children, value, index, ...other } = props;
+
+        return (
+            <div
+                role="tabpanel"
+                hidden={value !== index}
+                id={`simple-tabpanel-${index}`}
+                aria-labelledby={`simple-tab-${index}`}
+                {...other}
+            >
+                {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+            </div>
+        );
+    }
+
+    CustomTabPanel.propTypes = {
+        children: PropTypes.node,
+        index: PropTypes.number.isRequired,
+        value: PropTypes.number.isRequired,
+    };
+
+    function a11yProps(index) {
+        return {
+            id: `simple-tab-${index}`,
+            'aria-controls': `simple-tabpanel-${index}`,
+        };
+    }
     const SignUpForm = () => {
         return (
             <form onSubmit={handleCreateUser}>
@@ -56,17 +96,17 @@ const SignUpModal = ({ open, onFormClose }) => {
                         id='name'
                         name='name'
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={handleNameChange}
                     />
                 </div>
                 <div>
-                    <label htmlFor='email'>Email</label>
+                    <label>Email</label>
                     <input
                         type='email'
-                        id='email'
-                        name='email'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        id='signUpEmail'
+                        name='signUpEmail'
+                        value={signUpEmail}
+                        onChange={(e) => setSignUpEmail(e.target.value)}
                     />
                 </div>
                 <div>
@@ -80,9 +120,7 @@ const SignUpModal = ({ open, onFormClose }) => {
                     />
                 </div>
                 <div>
-                    <label htmlFor='confirm_password'>
-                        Confirm Password
-                    </label>
+                    <label htmlFor='confirm_password'>Confirm Password</label>
                     <input
                         type='password'
                         id='confirm_password'
@@ -91,10 +129,14 @@ const SignUpModal = ({ open, onFormClose }) => {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                 </div>
-                <button type='submit'>Register</button>
-                <p>Already registered?<span onClick={toggleForm}>Login here</span></p>
+                <button className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md transition-transform duration-300 hover:scale-110">
+                    Register
+                </button>
+                <p>Already registered?<span onClick={() => setTabVal(1)}>Login here</span></p>
             </form>
+
         )
+
     }
 
     const LoginForm = () => {
@@ -102,13 +144,12 @@ const SignUpModal = ({ open, onFormClose }) => {
             <form onSubmit={handleSignIn}>
                 <div>
                     <label htmlFor='email'>Email</label>
-
                     <input
                         type='email'
-                        id='email'
-                        name='email'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        id='loginEmail'
+                        name='loginEmail'
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
                     />
                 </div>
                 <div>
@@ -134,18 +175,29 @@ const SignUpModal = ({ open, onFormClose }) => {
             slots={{ backdrop: Backdrop }}
             slotProps={{
                 backdrop: {
-                    timeout: 500,
+                    timeout: 300,
                 },
             }}
         >
             <Fade in={open}>
                 <Box sx={style}>
-                    <DialogTitle>{isSignUp ? 'Sign Up' : 'Login'}</DialogTitle>
-                    <DialogContent>
-                        {isSignUp ? (
-                            <SignUpForm />) : (<LoginForm></LoginForm>)
-                        }
-                    </DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid size={6}>
+                            <Tabs value={tabVal} onChange={handleTabChange}>
+                                <Tab label='Login' {...a11yProps(0)} />
+                                <Tab label='Sign Up' {...a11yProps(1)} />
+                            </Tabs>
+                            <CustomTabPanel value={tabVal} index={0}>
+                                <LoginForm />
+                            </CustomTabPanel>
+                            <CustomTabPanel value={tabVal} index={1}>
+                                <SignUpForm />
+                            </CustomTabPanel>
+                        </Grid>
+                        <Grid size={6}>
+                            <img src={travelImage} height='auto' />
+                        </Grid>
+                    </Grid>
                 </Box>
             </Fade>
         </Modal>
