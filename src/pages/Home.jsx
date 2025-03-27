@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
 import SignUpModal from '../components/SignUpModal';
+import HeroSection from '../components/HeroSection';
+import useAuthStatus from "../hooks/useAuthStatus";
+import geminiAi from '../config/geminiAi';
 
 const Home = () => {
-    const [formModal, setFormModal] = useState(false);
-
-    useEffect(() => {
-        console.log("formModal state changed:", formModal);
-    }, [formModal]);
+    const test = useAuthStatus();
+    console.log('test: ', test);
+    // const data = geminiAi();
+    // console.log('data: ', data);
 
     return (
         <>
-            <h1>Hello there!!!</h1>
-            <h2>Your Dream Trip, Designed by AI</h2>
-            <Button variant="outlined" onClick={() => setFormModal(true)}>Get Itenary</Button>
+            <HeroSection />
 
-            {formModal && <SignUpModal open={formModal} onFormClose={() => setFormModal(false)} />}
+            {/* {formModal && <SignUpModal open={formModal} onFormClose={() => setFormModal(false)} />} */}
+            
         </>
     )
 }

@@ -9,10 +9,10 @@ import Home from './pages/Home';
 const App = () => {
   return (
     <Router>
-      <nav>
+      {/* <nav>
         <Link to="/">Home</Link>
         <Link to="/generate-trip">CreateTrip</Link>
-      </nav>
+      </nav> */}
 
       <Routes>
         <Route path="/" element={<Home />} />
