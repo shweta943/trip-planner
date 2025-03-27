@@ -8,7 +8,7 @@ async function main() {
 //         model: "gemini-2.0-flash",
 //         contents: "Explain how AI works"
 //     })
-//     console.log('response from gemini:', response.text)
+//     console.log('response from gemini:', response)
 //   } catch (error) {
 //     console.error("Gemini API Error:", error);
 //   }
