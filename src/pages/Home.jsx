@@ -7,8 +7,8 @@ import geminiAi from '../config/geminiAi';
 const Home = () => {
     const test = useAuthStatus();
     console.log('test: ', test);
-    // const data = geminiAi();
-    // console.log('data: ', data);
+    const data = geminiAi();
+    console.log('data: ', data);
 
     return (
         <>
