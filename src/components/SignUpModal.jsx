@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Backdrop, Modal, Fade, Box, Tab, Tabs } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { auth } from '../config/firebase';
+import { auth } from '../config/Firebase/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import PropTypes from 'prop-types';
 import travelImage from '../assets/Images/travel-2.avif';

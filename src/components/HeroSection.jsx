@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
 
 
 const HeroSection = () => {
@@ -12,7 +11,7 @@ const HeroSection = () => {
 
     return (
         <>
-            <div className="text-center text-white w-full p-12 flex flex-col">
+            <div className="text-center text-white w-full p-12 flex flex-col bg-gradient-to-r from-black via-gray-950 to-black">
                 <h2 className="text-5xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-orange-500">
                     Apni Mitti, Apni Yatra!
                 </h2>

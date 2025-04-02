@@ -24,7 +24,7 @@ Backend & Auth: Firebase Authentication
 
 Hosting: Vercel
 
-AI Integration: OpenAI API / Free AI Alternative
+AI Integration: Gemini AI integration
 🔥 Usage
 
 Sign up / Log in using Firebase authentication.
