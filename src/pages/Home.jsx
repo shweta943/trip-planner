@@ -3,7 +3,7 @@ import SignUpModal from '../components/SignUpModal';
 import HeroSection from '../components/HeroSection';
 import CardsSlider from '../components/CardsSlider';
 // import useAuthStatus from "../hooks/useAuthStatus";
-import geminiAi from '../config/GeminiAI/geminiAi';
+// import geminiAi from '../config/GeminiAI/geminiAi';
 // import getImages from '../config/getImageUrl';
 // import getCollectionData from '../config/';
 
