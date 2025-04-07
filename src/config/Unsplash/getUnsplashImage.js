@@ -5,7 +5,7 @@ const unsplash = createApi({
   accessKey: import.meta.env.VITE_UNSPLASH_ACCESS_KEY
 });
 
-const getImages = async (query = "nature", page = 1, perPage = 10) => {
+const getUnspashImages = async (query, page = 1, perPage = 1) => {
     try {
         const images = await unsplash.search.getPhotos({
             query,
@@ -24,4 +24,4 @@ const getImages = async (query = "nature", page = 1, perPage = 10) => {
     }
 }
 // return images
-export default getImages;
+export default getUnspashImages;

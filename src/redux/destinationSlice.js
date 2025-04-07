@@ -2,18 +2,18 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // Initial state
 const initialState = {
-    destinations: [],
+    cardDestinationsFromFb: [],
     loading: false,
     error: null
 };
 
-// Create slice
+// Create slices for redux
 const destinationSlice = createSlice({
     name: 'destinations',
     initialState,
     reducers: {
-        setDestinations: (state, action) => {
-            state.destinations = action.payload;
+        setCardDestinationsFromFb: (state, action) => {
+            state.cardDestinationsFromFb = action.payload;
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
@@ -24,6 +24,7 @@ const destinationSlice = createSlice({
     }
 });
 
-export const { setDestinations, setLoading, setError } = destinationSlice.actions;
+// Expose actions
+export const { setCardDestinationsFromFb, setLoading, setError } = destinationSlice.actions;
 
-export default destinationSlice;
+export default destinationSlice.reducer;

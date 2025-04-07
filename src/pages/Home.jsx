@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
-import SignUpModal from '../components/SignUpModal';
+import { useEffect } from 'react';
+// import SignUpModal from '../components/SignUpModal';
 import HeroSection from '../components/HeroSection';
 import CardsSlider from '../components/CardsSlider';
-// import useAuthStatus from "../hooks/useAuthStatus";
-// import geminiAi from '../config/GeminiAI/geminiAi';
-// import getImages from '../config/getImageUrl';
-// import getCollectionData from '../config/';
+import getCardDestinations from '../config/Firebase/getCardDestinations';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCardDestinationsFromFb, setLoading, setError } from "../redux/destinationSlice";
 
 const Home = () => {
-    // const test = useAuthStatus();
-    // console.log('test: ', test);
-    // const data = geminiAi();
-    // console.log('data: ', data);
-    // const images = getImages();
-    // console.log('imagesInComponent: ', images);
-    // const destinations = getCollectionData();
-    // console.log('destinations: ', destinations);
-    
+    const dispatch = useDispatch();
+    const { cardDestinationsFromFb, loading, error } = useSelector(state => state.destinations);
+
+    useEffect(() => {
+        const fetchCardData = async () => {
+            const cardDestinations = await getCardDestinations();
+            dispatch(setCardDestinationsFromFb(cardDestinations)); // store it in Red    
+        };
+        fetchCardData();
+    }, [dispatch]);
 
     return (
         <div>

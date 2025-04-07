@@ -5,7 +5,7 @@ const HeroSection = () => {
     const [formModal, setFormModal] = useState(false);
 
     useEffect(() => {
-        console.log("formModal state changed:", formModal);
+        // console.log("formModal state changed:", formModal);
     }, [formModal]);
 
 
