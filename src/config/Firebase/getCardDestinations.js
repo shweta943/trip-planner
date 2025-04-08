@@ -1,50 +1,34 @@
-import { db } from './firebase';
-import { getDocs, collection } from 'firebase/firestore';
-import { getAuth } from "firebase/auth";
-import getUnspashImages from '../Unsplash/getUnsplashImage';
-
-// const user = auth;
-const auth = getAuth();
+import { db } from "/src/config/Firebase/firebase.js";
+import { getDocs, collection } from "firebase/firestore"; // use this instead of node_modules path
+import getUnsplashImages from "/src/config/Unsplash/getUnsplashImage.js";
 
 async function getCollectionData() {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'destinationsForCards'));
 
-    // Return a promise because auth.onAuthStateChanged is an event and does not return a promise by default.
-    // Redux needs to be handled all states (fulfilled/rejected/pending).
-    return new Promise((resolve, reject) => {
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const querySnapshot = await getDocs(collection(db, 'destinationsForCards'));
+    const destinationsArray = await Promise.all(
+      querySnapshot.docs.map(async (doc) => {
+        const data = doc.data();
+        const imageUrl = await getUnsplashImages(data.title, 1);
 
-                    const destinationsArray = await Promise.all(
-                        querySnapshot.docs.map(async (doc) => {
-                            const data = doc.data();
-                            const imageUrl = await getUnspashImages(data.title, 1);
-
-                            return {
-                                ...data,
-                                image: [
-                                    {
-                                        url: imageUrl[0]?.urls?.regular,
-                                        alt: imageUrl[0]?.alt_description
-                                    }
-                                ]
-                            };
-                        })
-                    );
-                    resolve(destinationsArray);
-
-                } catch (error) {
-                    console.error('Error fetching collection from Firebase', error);
-                    reject(error);
-                }
-            } else {
-                console.error("User not authenticated!");
-                reject('User is not authenticated!!');
+        return {
+          ...data,
+          image: [
+            {
+              url: imageUrl[0]?.urls?.regular,
+              alt: imageUrl[0]?.alt_description
             }
-        });
-    })
+          ]
+        };
+      })
+    );
+
+    return destinationsArray;
+
+  } catch (error) {
+    console.error('Error fetching collection from Firebase:', error);
+    throw error; // allow caller (like redux thunk or useQuery) to catch this
+  }
 }
 
-// console.log('destination in collection', getCollectionData())
 export default getCollectionData;
