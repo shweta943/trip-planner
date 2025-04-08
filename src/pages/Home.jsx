@@ -3,12 +3,12 @@ import { useEffect } from 'react';
 import HeroSection from '../components/HeroSection';
 import CardsSlider from '../components/CardsSlider';
 import getCardDestinations from '../config/Firebase/getCardDestinations';
-import { useDispatch, useSelector } from 'react-redux';
-import { setCardDestinationsFromFb, setLoading, setError } from "../redux/destinationSlice";
+import { useDispatch } from 'react-redux';
+import { setCardDestinationsFromFb } from "../redux/destinationSlice";
+import ImageGallery from '../components/ImageGallery';
 
 const Home = () => {
     const dispatch = useDispatch();
-    const { cardDestinationsFromFb, loading, error } = useSelector(state => state.destinations);
 
     useEffect(() => {
         const fetchCardData = async () => {
@@ -22,6 +22,7 @@ const Home = () => {
         <div>
             <HeroSection />
             <CardsSlider />
+            <ImageGallery />
             {/* {formModal && <SignUpModal open={formModal} onFormClose={() => setFormModal(false)} />} */}
         </div>
 

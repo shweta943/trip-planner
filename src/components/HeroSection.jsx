@@ -11,7 +11,7 @@ const HeroSection = () => {
 
     return (
         <>
-            <div className="text-center text-white w-full p-12 flex flex-col bg-gradient-to-r from-black via-gray-950 to-black">
+            <div className="text-center text-white w-full min-h-[80vh] p-12 flex flex-col items-center justify-center bg-gradient-to-r from-black via-gray-950 to-black">
                 <h2 className="text-5xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-orange-500">
                     Apni Mitti, Apni Yatra!
                 </h2>

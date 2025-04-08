@@ -19,7 +19,7 @@ async function getCollectionData() {
                     const destinationsArray = await Promise.all(
                         querySnapshot.docs.map(async (doc) => {
                             const data = doc.data();
-                            const imageUrl = await getUnspashImages(data.title);
+                            const imageUrl = await getUnspashImages(data.title, 1);
 
                             return {
                                 ...data,
@@ -32,9 +32,6 @@ async function getCollectionData() {
                             };
                         })
                     );
-
-
-                    console.log('destinationsArray: ', destinationsArray);
                     resolve(destinationsArray);
 
                 } catch (error) {
