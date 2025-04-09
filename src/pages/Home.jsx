@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 // import SignUpModal from '../components/SignUpModal';
 import HeroSection from '../components/HeroSection';
 import CardsSlider from '../components/CardsSlider';
+import Testimonials from '../components/Testimonials';
 import getCardDestinations from '../config/Firebase/getCardDestinations';
 import { useDispatch } from 'react-redux';
 import { setCardDestinationsFromFb } from "../redux/destinationSlice";
@@ -23,6 +24,7 @@ const Home = () => {
             <HeroSection />
             <CardsSlider />
             <ImageGallery />
+            <Testimonials />
             {/* {formModal && <SignUpModal open={formModal} onFormClose={() => setFormModal(false)} />} */}
         </div>
 

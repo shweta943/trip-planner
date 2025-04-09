@@ -77,6 +77,3 @@ button:focus-visible {
 .card-3d:hover {
   transform: perspective(1000px) rotateY(5deg) scale(1.03);
 }
-.no-hover-effect {
-  background: transparent;
-}
