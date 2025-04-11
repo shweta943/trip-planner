@@ -15,7 +15,7 @@ const LoaderAnimation = () => {
       <Lottie
         animationData={travelAnimation}
         loop={true}
-        style={{ height: 300, width: 300 }}
+        style={{ height: 400, width: 300 }}
       />
     </div>
   )
