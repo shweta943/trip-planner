@@ -8,7 +8,6 @@ const useAuth = () => {
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log("Logged-in user:", currentUser);
       setUser(currentUser || null);
       setLoading(false);
     });

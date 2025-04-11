@@ -3,13 +3,18 @@ import { useEffect } from 'react';
 import HeroSection from '../components/HeroSection';
 import CardsSlider from '../components/CardsSlider';
 import Testimonials from '../components/Testimonials';
+import Navbar from '../components/Navbar/Navbar';
 import getCardDestinations from '../config/Firebase/getCardDestinations';
 import { useDispatch } from 'react-redux';
 import { setCardDestinationsFromFb } from "../redux/destinationSlice";
 import ImageGallery from '../components/ImageGallery';
+import useAuth from '../hooks/useAuth';
 
 const Home = () => {
     const dispatch = useDispatch();
+    const auth = useAuth();
+    const { user } = auth;
+    console.log('user: ', user);
 
     useEffect(() => {
         const fetchCardData = async () => {
@@ -21,6 +26,7 @@ const Home = () => {
 
     return (
         <div>
+            <Navbar />
             <HeroSection />
             <CardsSlider />
             <ImageGallery />

@@ -32,6 +32,7 @@ const CardsSlider = () => {
 
   return (
     <Box className="w-full px-4 sm:px-8 lg:px-16 py-10">
+      
       <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800">
         Top Travel Picks of 2025
       </h2>

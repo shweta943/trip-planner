@@ -1,6 +1,6 @@
 import { db } from "/src/config/Firebase/firebase.js";
 import { getDocs, collection } from "firebase/firestore"; // use this instead of node_modules path
-import getUnsplashImages from "/src/config/Unsplash/getUnsplashImage.js";
+import getUnsplashImages from "../Unsplash/getUnsplashImage";
 
 async function getCollectionData() {
   try {

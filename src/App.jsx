@@ -5,20 +5,34 @@ import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import './App.css'
 import CreateTrip from './pages/CreateTrip';
 import Home from './pages/Home';
+import LoaderAnimation from './components/LoaderAnimation';
 
 const App = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <Router>
-      {/* <nav>
+    <>
+      {loading ? <LoaderAnimation /> : (
+        < Router >
+          {/* <nav>
         <Link to="/">Home</Link>
         <Link to="/generate-trip">CreateTrip</Link>
       </nav> */}
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/generate-trip" element={<CreateTrip />} />
-      </Routes>
-    </Router>
+          < Routes >
+            <Route path="/" element={<Home />} />
+            <Route path="/generate-trip" element={<CreateTrip />} />
+          </Routes >
+        </Router >
+      )}
+    </>
   )
 }
 export default App
