@@ -1,6 +1,6 @@
 // import { useState, useEffect } from 'react';
 import Lottie from "lottie-react";
-import travelAnimation from '../assets/Json/travel-animation.json';
+import travelAnimation from '../../assets/Json/travel-animation.json';
 
 const LoaderAnimation = () => {
   return (

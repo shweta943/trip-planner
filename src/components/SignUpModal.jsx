@@ -3,21 +3,24 @@ import { useState } from 'react';
 import { Backdrop, Modal, Fade, Box, Tab, Tabs } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { auth } from '../config/Firebase/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import PropTypes from 'prop-types';
 import travelImage from '../assets/Images/travel-2.avif';
+import { useEffect } from 'react';
 
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
-    height: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
+    width: 'auto',
+    height: 'auto',
+    // backdropFilter: 'blur(20px)',
+    // backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#ffffff',
+    borderRadius: '16px',
+    boxShadow: '0 0 0 2px #ffffff, 0 0 30px #90cdf4',
+    padding: '32px',
 };
 
 // eslint-disable-next-line react/prop-types
@@ -32,8 +35,13 @@ const SignUpModal = ({ open, onFormClose }) => {
     const [tabVal, setTabVal] = useState(0);
     // const [errorMessage, setErrorMessage] = useState('');
 
+    useEffect(() => {
+        console.log('c', tabVal);
+    }, [tabVal]);
+
     const handleCreateUser = async (e) => {
         e.preventDefault();
+        
         try {
             await createUserWithEmailAndPassword(auth, signUpEmail, password);
             alert('User created Successfully!!');
@@ -41,8 +49,9 @@ const SignUpModal = ({ open, onFormClose }) => {
             console.error(error)
         }
     }
-    const handleSignIn = async (e) => {
+    const loginUser = async (e) => {
         e.preventDefault();
+
         try {
             await signInWithEmailAndPassword(auth, loginEmail, password);
             alert('Login Successfully!!')
@@ -50,15 +59,16 @@ const SignUpModal = ({ open, onFormClose }) => {
             console.error(error)
         }
     }
-    const handleTabChange = (event, newVal) => {
-        setTabVal(newVal);
-    }
+    const handleTabChange = (event, newValue) => {
+        setTabVal(newValue);
+        console.log('newValue: ', newValue);
+    };
     const handleNameChange = (name) => {
         console.log('name: ', name);
         setName(name);
     }
 
-    function CustomTabPanel (props) {
+    function CustomTabPanel(props) {
         const { children, value, index, ...other } = props;
 
         return (
@@ -88,51 +98,84 @@ const SignUpModal = ({ open, onFormClose }) => {
     }
     const SignUpForm = () => {
         return (
-            <form onSubmit={handleCreateUser}>
+            <form>
                 <div>
-                    <label>Name</label>
+                    <label className='block text-sm/6 font-medium'>Name</label>
                     <input
-                        type='text'
-                        id='name'
-                        name='name'
-                        value={name}
-                        onChange={handleNameChange}
+                        id="name"
+                        name="name"
+                        type="text"
+                        // required
+                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
+
                 <div>
-                    <label>Email</label>
+                    <label className='block text-sm/6 font-medium mt-6'>Email</label>
                     <input
-                        type='email'
-                        id='signUpEmail'
-                        name='signUpEmail'
-                        value={signUpEmail}
-                        onChange={(e) => setSignUpEmail(e.target.value)}
+                        id="email"
+                        name="email"
+                        type="email"
+                        // required
+                        autoComplete="email"
+                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
+
                 <div>
-                    <label htmlFor='password'>Password</label>
-                    <input
-                        type='password'
-                        id='password'
-                        name='password'
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div className="flex items-center justify-between mt-6">
+                        <label htmlFor="password" className="block text-sm/6 font-medium">
+                            Password
+                        </label>
+                        <div className="text-sm">
+                            <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                                Forgot password?
+                            </a>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            // required
+                            autoComplete="current-password"
+                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                        />
+                    </div>
                 </div>
+
                 <div>
-                    <label htmlFor='confirm_password'>Confirm Password</label>
+                    <label htmlFor='confirm_password' className="block text-sm/6 font-medium mt-6">Confirm Password</label>
                     <input
                         type='password'
                         id='confirm_password'
                         name='confirm_password'
                         value={confirmPassword}
+                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                 </div>
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md transition-transform duration-300 hover:scale-110">
+
+                {/* <button className="bg-blue-500 px-4 py-2 rounded-md shadow-md transition-transform duration-300 hover:scale-110">
                     Register
-                </button>
-                <p>Already registered?<span onClick={() => setTabVal(1)}>Login here</span></p>
+                </button> */}
+                <div className='mt-6'>
+                    <button className="px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 rounded-lg shadow-lg hover:shadow-orange-500/50 transition duration-300">
+                        Register
+                    </button>
+                </div>
+
+                {/* <p className='text-sm/6 font-medium text-gray-900 mt-6'>Already registered?
+                    <span>
+                        <button
+                            onClick={() => setTabVal(1)}
+                            className="ml-2 cursor-pointer text-blue-500 hover:underline"
+                        >
+                            Login here
+                        </button>
+                    </span>
+                </p> */}
             </form>
 
         )
@@ -141,28 +184,39 @@ const SignUpModal = ({ open, onFormClose }) => {
 
     const LoginForm = () => {
         return (
-            <form onSubmit={handleSignIn}>
+            <form>
                 <div>
-                    <label htmlFor='email'>Email</label>
+                    <label htmlFor='email' className='text-sm/6 font-medium text-gray-900'>Email</label>
                     <input
-                        type='email'
-                        id='loginEmail'
-                        name='loginEmail'
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        autoComplete="email"
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
+                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
-                <div>
-                    <label htmlFor='password'>Password</label>
+                <div className='mt-6'>
+                    <label htmlFor='password' className='text-sm/6 font-medium text-gray-900'>Password</label>
                     <input
                         type='password'
                         id='password'
                         name='password'
-                        value={password}
+                        required
                         onChange={(e) => setPassword(e.target.value)}
+                        className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
                     />
                 </div>
-                <button type='submit' onClick={handleSignIn}>Login</button>
+                <div className='mt-6'>
+                    <button
+                        className="px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 rounded-lg shadow-lg hover:shadow-orange-500/50 transition duration-300"
+                        onClick={loginUser}
+                        >
+                        Login
+                    </button>
+                </div>
             </form>
         )
     }
@@ -184,8 +238,8 @@ const SignUpModal = ({ open, onFormClose }) => {
                     <Grid container spacing={2}>
                         <Grid size={6}>
                             <Tabs value={tabVal} onChange={handleTabChange}>
-                                <Tab label='Login' {...a11yProps(0)} />
-                                <Tab label='Sign Up' {...a11yProps(1)} />
+                                <Tab label='Login' className='border-none' {...a11yProps(0)} />
+                                <Tab label='Sign Up' className='border-none text-white' {...a11yProps(1)} />
                             </Tabs>
                             <CustomTabPanel value={tabVal} index={0}>
                                 <LoginForm />

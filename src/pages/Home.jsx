@@ -10,7 +10,7 @@ import { setCardDestinationsFromFb } from "../redux/destinationSlice";
 import ImageGallery from '../components/ImageGallery';
 import useAuth from '../hooks/useAuth';
 
-const Home = () => {
+const Home = ({ showSnackbar }) => {
     const dispatch = useDispatch();
     const auth = useAuth();
     const { user } = auth;
@@ -28,7 +28,7 @@ const Home = () => {
         <div>
             <Navbar />
             <HeroSection />
-            <CardsSlider />
+            <CardsSlider showSnackbar={showSnackbar} />
             <ImageGallery />
             <Testimonials />
             {/* {formModal && <SignUpModal open={formModal} onFormClose={() => setFormModal(false)} />} */}

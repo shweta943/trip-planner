@@ -11,7 +11,7 @@ const destinationsInIndia = ['Jaisalmer', 'Manali', 'Hampi', 'Kerala', 'Kutch', 
 
 const ImageGallery = () => {
     const imageQueries = useQueries({
-        queries: destinationsInIndia.map((destination) => ({
+        queries: destinationsInIndia?.map((destination) => ({
             queryKey: ['destinationImage', destination],
             queryFn: () => fetchImageForDestination(destination),
         })),

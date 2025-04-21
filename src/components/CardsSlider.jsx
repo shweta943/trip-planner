@@ -6,9 +6,16 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import CardActionArea from '@mui/material/CardActionArea';
 import { Box } from '@mui/material';
+import useAuthGuard from '../hooks/useAuthGuard';
+import PropTypes from 'prop-types';
 
-const CardsSlider = () => {
+const CardsSlider = ({ showSnackbar }) => {
   const { cardDestinationsFromFb } = useSelector(state => state.destinations);
+  const { handleButtonClick } = useAuthGuard();
+
+  CardsSlider.propTypes = {
+    showSnackbar: PropTypes.func.isRequired,
+  };
 
   const settings = {
     dots: true,
@@ -16,7 +23,7 @@ const CardsSlider = () => {
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1,
-    autoplay: true,
+    autoplay: false,
     autoplaySpeed: 2500,
     responsive: [
       {
@@ -32,7 +39,7 @@ const CardsSlider = () => {
 
   return (
     <Box className="w-full px-4 sm:px-8 lg:px-16 py-10">
-      
+
       <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800">
         Top Travel Picks of 2025
       </h2>
@@ -74,8 +81,11 @@ const CardsSlider = () => {
 
             {/* Hover Overlay with Button */}
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button className="bg-white text-black px-4 py-2 rounded-full font-semibold shadow hover:bg-gray-200 transition-transform transform group-hover:scale-105">
-                Get Itinerary
+              <button
+                className="bg-white text-black px-4 py-2 rounded-full font-semibold shadow hover:bg-gray-200 transition-transform transform group-hover:scale-105"
+                style={{ backgroundColor: '#f9f9f9' }}
+                onClick={() => handleButtonClick(showSnackbar)}>
+                  Get Itinerary
               </button>
             </div>
           </Card>

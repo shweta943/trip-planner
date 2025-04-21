@@ -5,8 +5,6 @@ import { AppBar, Toolbar } from "@mui/material";
 const Navbar = () => {
     return (
         <div>
-
-
             <AppBar position="fixed" elevation={3} sx={{ backgroundColor: "white", color: "black" }}>
                 <Toolbar sx={{ justifyContent: "space-between" }}>
                     {/* Logo */}
