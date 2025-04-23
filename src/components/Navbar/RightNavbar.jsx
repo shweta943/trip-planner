@@ -1,13 +1,9 @@
-
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import IconButton from "@mui/material/IconButton";
-import { Button } from '@mui/material';
 import { useState } from 'react';
+import { Button } from '@mui/material';
 import LoginModal from '../SignUpModal';
-import AvatarProfile from '../UI/Avatar';
 import useThemeContext from '../../hooks/useThemeContext';
 import { useSelector } from 'react-redux';
+import Dropdown from '../UI/Dropdown';
 
 const RightNavbar = () => {
     const { mode, toggleTheme } = useThemeContext();
@@ -36,14 +32,15 @@ const RightNavbar = () => {
                         //     backgroundColor: 'primary.main',
                         //     color: 'white',
                         // }
-                    }}
+                    }}    
                     onClick={getItinerary}
                 >
                     Login
                 </Button>
 
             ) : (
-                <AvatarProfile nameInitial={userDetails?.displayName?.trim()[0]} />
+                <Dropdown />
+                
             )}
             <LoginModal open={formModal} onFormClose={() => setFormModal(false)} />
         </>

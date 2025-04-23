@@ -1,16 +1,13 @@
-import Avatar from '@mui/material/Avatar';
+import { Avatar } from '@mui/material';
 import { deepOrange } from '@mui/material/colors';
-import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
-const AvatarProfile = ({ initial }) => {
-    // ✅ Prop validation
-    AvatarProfile.propTypes = {
-        initial: PropTypes.string.isRequired,
-    };
+const AvatarProfile = () => {
+    const { userDetails } = useSelector(state => state.user);
+    const initial = userDetails?.displayName?.trim()[0];
+
     return (
-        <div>
-            <Avatar alt='User' sx={{ bgcolor: deepOrange[500] }}>{initial}</Avatar>
-        </div>
+        <Avatar alt='User' sx={{ bgcolor: deepOrange[500] }}>{initial}</Avatar>
     )
 }
 

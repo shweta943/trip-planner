@@ -1,12 +1,11 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Backdrop, Modal, Fade, Box, Tab, Tabs } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { auth } from '../config/Firebase/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import PropTypes from 'prop-types';
 import travelImage from '../assets/Images/travel-2.avif';
-import { useEffect } from 'react';
 
 const style = {
     position: 'absolute',
@@ -27,21 +26,22 @@ const style = {
 const SignUpModal = ({ open, onFormClose }) => {
 
     const [name, setName] = useState('');
-    const [loginEmail, setLoginEmail] = useState('');
     const [signUpEmail, setSignUpEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     // const [isSignUp, setIsSignUp] = useState(false);
     const [tabVal, setTabVal] = useState(0);
-    // const [errorMessage, setErrorMessage] = useState('');
+    const loginEmailRef = useRef(null);
+    const loginPasswordRef = useRef(null);
 
-    useEffect(() => {
-        console.log('c', tabVal);
-    }, [tabVal]);
+    // const [loginForm, setLoginForm] = useState({
+    //     email: "",
+    //     password: "",
+    // });
 
     const handleCreateUser = async (e) => {
         e.preventDefault();
-        
+
         try {
             await createUserWithEmailAndPassword(auth, signUpEmail, password);
             alert('User created Successfully!!');
@@ -49,24 +49,17 @@ const SignUpModal = ({ open, onFormClose }) => {
             console.error(error)
         }
     }
-    const loginUser = async (e) => {
-        e.preventDefault();
 
-        try {
-            await signInWithEmailAndPassword(auth, loginEmail, password);
-            alert('Login Successfully!!')
-        } catch (error) {
-            console.error(error)
-        }
-    }
     const handleTabChange = (event, newValue) => {
         setTabVal(newValue);
-        console.log('newValue: ', newValue);
     };
     const handleNameChange = (name) => {
-        console.log('name: ', name);
         setName(name);
-    }
+    };
+    // const handleLoginFormChange = (e) => {
+
+    //     // setLoginForm((prevState) => ({ ...prevState, [name]: value }));
+    //   };
 
     function CustomTabPanel(props) {
         const { children, value, index, ...other } = props;
@@ -74,12 +67,14 @@ const SignUpModal = ({ open, onFormClose }) => {
         return (
             <div
                 role="tabpanel"
-                hidden={value !== index}
                 id={`simple-tabpanel-${index}`}
+                hidden={value !== index}
                 aria-labelledby={`simple-tab-${index}`}
                 {...other}
             >
-                {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+                <Box sx={{ p: 3, display: value === index ? 'block' : 'none' }}>
+                    {children}
+                </Box>
             </div>
         );
     }
@@ -96,6 +91,21 @@ const SignUpModal = ({ open, onFormClose }) => {
             'aria-controls': `simple-tabpanel-${index}`,
         };
     }
+
+    const submitLoginForm = async (e) => {
+        e.preventDefault();
+        const loginEmail = loginEmailRef.current.value;
+        const loginPassword = loginPasswordRef.current.value;
+
+        try {
+            await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+            alert('Login Successfully!!')
+            setLoginForm(false);
+        } catch (error) {
+            console.error(error)
+        }
+    };
+
     const SignUpForm = () => {
         return (
             <form>
@@ -105,7 +115,8 @@ const SignUpModal = ({ open, onFormClose }) => {
                         id="name"
                         name="name"
                         type="text"
-                        // required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
@@ -184,36 +195,34 @@ const SignUpModal = ({ open, onFormClose }) => {
 
     const LoginForm = () => {
         return (
-            <form>
+            <form onSubmit={submitLoginForm}>
                 <div>
                     <label htmlFor='email' className='text-sm/6 font-medium text-gray-900'>Email</label>
                     <input
-                        id="email"
-                        name="email"
+                        id="loginId"
                         type="email"
+                        ref={loginEmailRef}
                         required
-                        autoComplete="email"
-                        value={loginEmail}
-                        onChange={(e) => setLoginEmail(e.target.value)}
+                        autoComplete="off"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
                 <div className='mt-6'>
                     <label htmlFor='password' className='text-sm/6 font-medium text-gray-900'>Password</label>
                     <input
+                        id="loginPassword"
                         type='password'
-                        id='password'
-                        name='password'
+                        ref={loginPasswordRef}
                         required
-                        onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="off"
                         className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
                     />
                 </div>
                 <div className='mt-6'>
                     <button
                         className="px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 rounded-lg shadow-lg hover:shadow-orange-500/50 transition duration-300"
-                        onClick={loginUser}
-                        >
+                    // onClick={loginUser}
+                    >
                         Login
                     </button>
                 </div>
@@ -245,7 +254,8 @@ const SignUpModal = ({ open, onFormClose }) => {
                                 <LoginForm />
                             </CustomTabPanel>
                             <CustomTabPanel value={tabVal} index={1}>
-                                <SignUpForm />
+                                Hello!!!!!
+                                {/* <SignUpForm /> */}
                             </CustomTabPanel>
                         </Grid>
                         <Grid size={6}>

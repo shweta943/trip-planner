@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import LoginModal from '../components/SignUpModal';
 
 const HeroSection = () => {
@@ -7,7 +7,6 @@ const HeroSection = () => {
     
     const getItinerary = () => {
         setFormModal(true);
-        console.log('formModal: ', formModal);
     }
 
     return (
