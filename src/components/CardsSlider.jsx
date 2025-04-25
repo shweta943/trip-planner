@@ -6,15 +6,21 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import CardActionArea from '@mui/material/CardActionArea';
 import { Box } from '@mui/material';
-import useAuthGuard from '../hooks/useAuthGuard';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 const CardsSlider = ({ showSnackbar }) => {
   const { cardDestinationsFromFb } = useSelector(state => state.destinations);
-  const { handleButtonClick } = useAuthGuard();
+  const { userDetails } = useSelector(state => state.user);
+  const navigate = useNavigate();
 
   CardsSlider.propTypes = {
     showSnackbar: PropTypes.func.isRequired,
+  };
+
+  const handleButtonClick = () => {
+    !userDetails ?
+      showSnackbar("Please login to continue generating itinerary!", "error") : navigate('/generate-trip');
   };
 
   const settings = {
@@ -84,8 +90,8 @@ const CardsSlider = ({ showSnackbar }) => {
               <button
                 className="bg-white text-black px-4 py-2 rounded-full font-semibold shadow hover:bg-gray-200 transition-transform transform group-hover:scale-105"
                 style={{ backgroundColor: '#f9f9f9' }}
-                onClick={() => handleButtonClick(showSnackbar)}>
-                  Get Itinerary
+                onClick={handleButtonClick}>
+                Get Itinerary
               </button>
             </div>
           </Card>

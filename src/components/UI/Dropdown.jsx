@@ -7,13 +7,14 @@ import AvatarProfile from './Avatar';
 import { auth } from '../../config/Firebase/firebase';
 import { useNavigate } from 'react-router-dom';
 
+
 const Dropdown = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
     const handleAvatarClick = (event) => {
         setAnchorEl(event.currentTarget);
-      };
+    };
 
     const handleClose = () => {
         setAnchorEl(null);
@@ -22,7 +23,7 @@ const Dropdown = () => {
         handleClose();
         e.preventDefault();
         auth.signOut();
-       useNavigate
+        // useNavigate
     };
 
     return (

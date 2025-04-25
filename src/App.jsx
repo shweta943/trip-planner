@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import './App.css'
-import CreateTrip from './pages/CreateTrip';
+import GenerateTrip from './pages/GenerateTrip';
 import Home from './pages/Home';
 import LoaderAnimation from './components/UI/LoaderAnimation';
 import SnackBar from './components/UI/SnackBar';
+import Navbar from './components/Navbar/Navbar';
 
 const App = () => {
 
@@ -14,7 +15,7 @@ const App = () => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'error',
+    severity: 'error'
   });
 
   const showSnackbar = (message, severity = 'info') => {
@@ -35,19 +36,17 @@ const App = () => {
   return (
     <>
       {loading ? <LoaderAnimation /> : (
-        <Router >
-          {/* <nav>
-        <Link to="/">Home</Link>
-        <Link to="/generate-trip">CreateTrip</Link>
-      </nav> */}
+        <>
+          <Navbar />
+          <Router >
+            <Routes>
+              <Route path="/" element={<Home showSnackbar={showSnackbar} />} />
+              <Route path="/generate-trip" element={<GenerateTrip />} />
+            </Routes>
 
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/generate-trip" element={<CreateTrip />} />
-          </Routes>
-
-          <SnackBar open={snackbar.open} handleClose={handleClose} message={snackbar.message} severity={snackbar.severity} />
-        </Router >
+            <SnackBar open={snackbar.open} handleClose={handleClose} messageToShow={snackbar.message} severity={snackbar.severity} />
+          </Router >
+        </>
       )}
     </>
   )

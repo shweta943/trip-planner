@@ -2,16 +2,19 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import PropTypes from 'prop-types';
 
-const SnackBar = ({ open, handleClose }) => {
+
+function SnackBar ({ open, handleClose, severity, messageToShow }) {
 
     SnackBar.propTypes = {
         handleClose: PropTypes.func.isRequired,
         open: PropTypes.bool.isRequired,
+        severity: PropTypes.string.isRequired,
+        messageToShow: PropTypes.string.isRequired
     };
     return (
         <Snackbar open={open} autoHideDuration={4000} onClose={handleClose}>
-            <Alert onClose={handleClose} severity="error" variant="filled" sx={{ width: '100%' }}>
-                Please login to access this feature!
+            <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
+                {messageToShow}
             </Alert>
         </Snackbar>
     )

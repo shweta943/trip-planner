@@ -1,20 +1,24 @@
 import { useEffect } from 'react';
-// import SignUpModal from '../components/SignUpModal';
 import HeroSection from '../components/HeroSection';
 import CardsSlider from '../components/CardsSlider';
 import Testimonials from '../components/Testimonials';
-import Navbar from '../components/Navbar/Navbar';
 import getCardDestinations from '../config/Firebase/getCardDestinations';
 import { useDispatch } from 'react-redux';
 import { setCardDestinationsFromFb } from "../redux/destinationSlice";
 import ImageGallery from '../components/ImageGallery';
+import PropTypes from 'prop-types';
 import useAuth from '../hooks/useAuth';
 
 const Home = ({ showSnackbar }) => {
+
+    Home.propTypes = {
+        showSnackbar: PropTypes.func.isRequired
+    };
+
     const dispatch = useDispatch();
     const auth = useAuth();
     const { user } = auth;
-    console.log('user: ', user);
+    console.log('userDetails: ', user);
 
     useEffect(() => {
         const fetchCardData = async () => {
@@ -26,12 +30,10 @@ const Home = ({ showSnackbar }) => {
 
     return (
         <div>
-            <Navbar />
             <HeroSection />
             <CardsSlider showSnackbar={showSnackbar} />
             <ImageGallery />
             <Testimonials />
-            {/* {formModal && <SignUpModal open={formModal} onFormClose={() => setFormModal(false)} />} */}
         </div>
 
     )

@@ -23,43 +23,22 @@ const style = {
 };
 
 // eslint-disable-next-line react/prop-types
-const SignUpModal = ({ open, onFormClose }) => {
+const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
 
-    const [name, setName] = useState('');
-    const [signUpEmail, setSignUpEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     // const [isSignUp, setIsSignUp] = useState(false);
     const [tabVal, setTabVal] = useState(0);
+    const [snackbarError, setSnackbarError] = useState('');
+
     const loginEmailRef = useRef(null);
     const loginPasswordRef = useRef(null);
 
-    // const [loginForm, setLoginForm] = useState({
-    //     email: "",
-    //     password: "",
-    // });
-
-    const handleCreateUser = async (e) => {
-        e.preventDefault();
-
-        try {
-            await createUserWithEmailAndPassword(auth, signUpEmail, password);
-            alert('User created Successfully!!');
-        } catch (error) {
-            console.error(error)
-        }
-    }
+    const signUpEmailRef = useRef(null);
+    const signUpPasswordRef = useRef(null);
+    const signUpConfirmPasswordRef = useRef(null);
 
     const handleTabChange = (event, newValue) => {
         setTabVal(newValue);
     };
-    const handleNameChange = (name) => {
-        setName(name);
-    };
-    // const handleLoginFormChange = (e) => {
-
-    //     // setLoginForm((prevState) => ({ ...prevState, [name]: value }));
-    //   };
 
     function CustomTabPanel(props) {
         const { children, value, index, ...other } = props;
@@ -94,13 +73,61 @@ const SignUpModal = ({ open, onFormClose }) => {
 
     const submitLoginForm = async (e) => {
         e.preventDefault();
+
         const loginEmail = loginEmailRef.current.value;
         const loginPassword = loginPasswordRef.current.value;
 
         try {
             await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-            alert('Login Successfully!!')
-            setLoginForm(false);
+            // await show
+            // setLoginForm(false);
+        } catch (error) {
+            console.error(error)
+        }
+    };
+
+    const submitSignUpForm = async (e) => {
+        e.preventDefault();
+        const signUpEmail = signUpEmailRef.current.value;
+        const signUpPassword = signUpPasswordRef.current.value;
+        const signUpConfirmPassword = signUpConfirmPasswordRef.current.value;
+
+        const errors = [];
+
+        if (signUpPassword.length < 8) {
+            setSnackbarError('Password must be at least 8 characters long.');
+            showSnackbar(showSnackbar, 'error');
+        }
+        if (!/[A-Z]/.test(signUpPassword)) {
+            setSnackbarError('Password must contain at least one uppercase letter.');
+            showSnackbar(showSnackbar, 'error');
+        }
+        if (!/[a-z]/.test(signUpPassword)) {
+            setSnackbarError('Password must contain at least one lowercase letter.');
+            showSnackbar(showSnackbar, 'error');
+        }
+        if (!/[0-9]/.test(signUpPassword)) {
+            setSnackbarError('Password must contain at least one number.');
+            showSnackbar(showSnackbar, 'error');
+        }
+        if (!/[!@#$%^&*]/.test(signUpPassword)) {
+            setSnackbarError('Password must contain at least one special character.');
+            showSnackbar(showSnackbar, 'error');
+        }
+        if (signUpPassword !== signUpConfirmPassword) {
+            setSnackbarError('Passwords do not match.');
+            showSnackbar(showSnackbar, 'error');
+        }
+
+        if (errors.length > 0) {
+            alert(errors.join("\n"));
+            return;
+        }
+
+        try {
+            await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
+            showSnackbar('User created successfully!', 'success');
+            // setLoginForm(false);
         } catch (error) {
             console.error(error)
         }
@@ -108,27 +135,16 @@ const SignUpModal = ({ open, onFormClose }) => {
 
     const SignUpForm = () => {
         return (
-            <form>
-                <div>
-                    <label className='block text-sm/6 font-medium'>Name</label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                    />
-                </div>
+            <form onSubmit={submitSignUpForm}>
 
                 <div>
                     <label className='block text-sm/6 font-medium mt-6'>Email</label>
                     <input
                         id="email"
-                        name="email"
                         type="email"
-                        // required
-                        autoComplete="email"
+                        ref={signUpEmailRef}
+                        required
+                        autoComplete
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
@@ -147,9 +163,9 @@ const SignUpModal = ({ open, onFormClose }) => {
                     <div className="mt-2">
                         <input
                             id="password"
-                            name="password"
                             type="password"
-                            // required
+                            ref={signUpPasswordRef}
+                            required
                             autoComplete="current-password"
                             className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                         />
@@ -159,18 +175,14 @@ const SignUpModal = ({ open, onFormClose }) => {
                 <div>
                     <label htmlFor='confirm_password' className="block text-sm/6 font-medium mt-6">Confirm Password</label>
                     <input
-                        type='password'
                         id='confirm_password'
-                        name='confirm_password'
-                        value={confirmPassword}
+                        type='password'
+                        ref={signUpConfirmPasswordRef}
+                        autoComplete="current-confirm-password"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                        onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                 </div>
 
-                {/* <button className="bg-blue-500 px-4 py-2 rounded-md shadow-md transition-transform duration-300 hover:scale-110">
-                    Register
-                </button> */}
                 <div className='mt-6'>
                     <button className="px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 rounded-lg shadow-lg hover:shadow-orange-500/50 transition duration-300">
                         Register
@@ -203,7 +215,7 @@ const SignUpModal = ({ open, onFormClose }) => {
                         type="email"
                         ref={loginEmailRef}
                         required
-                        autoComplete="off"
+                        autoComplete="true"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
@@ -214,14 +226,13 @@ const SignUpModal = ({ open, onFormClose }) => {
                         type='password'
                         ref={loginPasswordRef}
                         required
-                        autoComplete="off"
+                        autoComplete="true"
                         className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
                     />
                 </div>
                 <div className='mt-6'>
                     <button
                         className="px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 rounded-lg shadow-lg hover:shadow-orange-500/50 transition duration-300"
-                    // onClick={loginUser}
                     >
                         Login
                     </button>
@@ -254,8 +265,7 @@ const SignUpModal = ({ open, onFormClose }) => {
                                 <LoginForm />
                             </CustomTabPanel>
                             <CustomTabPanel value={tabVal} index={1}>
-                                Hello!!!!!
-                                {/* <SignUpForm /> */}
+                                <SignUpForm />
                             </CustomTabPanel>
                         </Grid>
                         <Grid size={6}>

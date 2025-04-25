@@ -13,9 +13,7 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         setUserDetails: (state, action) => {
-            console.log('action: ', action);
             state.userDetails = action.payload;
-            console.log('state.userDetails: ', state.userDetails);
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
