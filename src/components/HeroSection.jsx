@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import LoginModal from '../components/SignUpModal';
 
 const HeroSection = () => {
 

@@ -1,8 +1,12 @@
 import LeftNavbar from '../../components/Navbar/LeftNavbar';
 import RightNavbar from '../../components/Navbar/RightNavbar';
 import { AppBar, Toolbar } from "@mui/material";
+import PropTypes from 'prop-types';
 
-const Navbar = () => {
+const Navbar = ({ showSnackbar }) => {
+    Navbar.propTypes = {
+        showSnackbar: PropTypes.func.isRequired
+    };
     return (
         <div>
             <AppBar position="fixed" elevation={3} sx={{ backgroundColor: "white", color: "black" }}>
@@ -10,7 +14,7 @@ const Navbar = () => {
                     {/* Logo */}
                     <LeftNavbar />
 
-                    <RightNavbar />
+                    <RightNavbar showSnackbar={showSnackbar} />
                 </Toolbar>
             </AppBar>
 

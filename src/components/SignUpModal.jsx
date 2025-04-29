@@ -6,6 +6,8 @@ import { auth } from '../config/Firebase/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import PropTypes from 'prop-types';
 import travelImage from '../assets/Images/travel-2.avif';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const style = {
     position: 'absolute',
@@ -22,8 +24,13 @@ const style = {
     padding: '32px',
 };
 
-// eslint-disable-next-line react/prop-types
 const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
+
+    SignUpModal.propTypes = {
+        open: PropTypes.bool.isRequired,
+        onFormClose: PropTypes.func.isRequired,
+        showSnackbar: PropTypes.func.isRequired
+    };
 
     // const [isSignUp, setIsSignUp] = useState(false);
     const [tabVal, setTabVal] = useState(0);
@@ -35,6 +42,8 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
     const signUpEmailRef = useRef(null);
     const signUpPasswordRef = useRef(null);
     const signUpConfirmPasswordRef = useRef(null);
+
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const handleTabChange = (event, newValue) => {
         setTabVal(newValue);
@@ -79,6 +88,7 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
 
         try {
             await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+            onFormClose();
             // await show
             // setLoginForm(false);
         } catch (error) {
@@ -96,41 +106,49 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
 
         if (signUpPassword.length < 8) {
             setSnackbarError('Password must be at least 8 characters long.');
-            showSnackbar(showSnackbar, 'error');
+            showSnackbar(snackbarError, 'error');
+            return;
         }
         if (!/[A-Z]/.test(signUpPassword)) {
             setSnackbarError('Password must contain at least one uppercase letter.');
-            showSnackbar(showSnackbar, 'error');
+            showSnackbar(snackbarError, 'error');
+            return;
         }
         if (!/[a-z]/.test(signUpPassword)) {
             setSnackbarError('Password must contain at least one lowercase letter.');
-            showSnackbar(showSnackbar, 'error');
+            showSnackbar(snackbarError, 'error');
+            return;
         }
         if (!/[0-9]/.test(signUpPassword)) {
             setSnackbarError('Password must contain at least one number.');
-            showSnackbar(showSnackbar, 'error');
+            showSnackbar(snackbarError, 'error');
+            return;
         }
         if (!/[!@#$%^&*]/.test(signUpPassword)) {
             setSnackbarError('Password must contain at least one special character.');
-            showSnackbar(showSnackbar, 'error');
+            showSnackbar(snackbarError, 'error');
+            return;
         }
         if (signUpPassword !== signUpConfirmPassword) {
             setSnackbarError('Passwords do not match.');
-            showSnackbar(showSnackbar, 'error');
-        }
-
-        if (errors.length > 0) {
-            alert(errors.join("\n"));
+            showSnackbar(snackbarError, 'error');
             return;
         }
 
         try {
             await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
             showSnackbar('User created successfully!', 'success');
+            onFormClose();
+
             // setLoginForm(false);
         } catch (error) {
-            console.error(error)
+            console.error(error);
+            showSnackbar(error.message, 'error');
         }
+    };
+
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible((prevState) => !prevState);
     };
 
     const SignUpForm = () => {
@@ -144,7 +162,8 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
                         type="email"
                         ref={signUpEmailRef}
                         required
-                        autoComplete
+                        autoComplete='true'
+                        placeholder="Enter your email"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
@@ -154,11 +173,11 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
                         <label htmlFor="password" className="block text-sm/6 font-medium">
                             Password
                         </label>
-                        <div className="text-sm">
+                        {/* <div className="text-sm">
                             <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
                                 Forgot password?
                             </a>
-                        </div>
+                        </div> */}
                     </div>
                     <div className="mt-2">
                         <input
@@ -167,6 +186,7 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
                             ref={signUpPasswordRef}
                             required
                             autoComplete="current-password"
+                            placeholder="Enter your password"
                             className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                         />
                     </div>
@@ -179,6 +199,7 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
                         type='password'
                         ref={signUpConfirmPasswordRef}
                         autoComplete="current-confirm-password"
+                        placeholder="Re enter your password"
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
@@ -199,7 +220,7 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
                         </button>
                     </span>
                 </p> */}
-            </form>
+            </form >
 
         )
 
@@ -219,7 +240,7 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
-                <div className='mt-6'>
+                <div className='mt-6 relative'>
                     <label htmlFor='password' className='text-sm/6 font-medium text-gray-900'>Password</label>
                     <input
                         id="loginPassword"
@@ -227,9 +248,23 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
                         ref={loginPasswordRef}
                         required
                         autoComplete="true"
+                        placeholder="Enter your password"
                         className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
                     />
+                    <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute right-2 top-7"
+                        style={{ border: 'none', padding: 0, backgroundColor: 'transparent' }}
+                    >
+                        {isPasswordVisible ? (
+                            <VisibilityOff fontSize='small' />
+                        ) : (
+                            <Visibility fontSize='small' />
+                        )}
+                    </button>
                 </div>
+
                 <div className='mt-6'>
                     <button
                         className="px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 rounded-lg shadow-lg hover:shadow-orange-500/50 transition duration-300"
@@ -257,9 +292,9 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
                 <Box sx={style}>
                     <Grid container spacing={2}>
                         <Grid size={6}>
-                            <Tabs value={tabVal} onChange={handleTabChange}>
-                                <Tab label='Login' className='border-none' {...a11yProps(0)} />
-                                <Tab label='Sign Up' className='border-none text-white' {...a11yProps(1)} />
+                            <Tabs value={tabVal} onChange={handleTabChange} textColor="secondary" indicatorColor="secondary">
+                                <Tab label='Login' sx={{ outline: "none !important" }} {...a11yProps(0)} />
+                                <Tab label='Sign Up' className='text-white' sx={{ outline: "none !important" }} {...a11yProps(1)} />
                             </Tabs>
                             <CustomTabPanel value={tabVal} index={0}>
                                 <LoginForm />

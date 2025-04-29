@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { setCardDestinationsFromFb } from "../redux/destinationSlice";
 import ImageGallery from '../components/ImageGallery';
 import PropTypes from 'prop-types';
-import useAuth from '../hooks/useAuth';
+// import useAuth from '../hooks/useAuth';
 
 const Home = ({ showSnackbar }) => {
 
@@ -16,9 +16,6 @@ const Home = ({ showSnackbar }) => {
     };
 
     const dispatch = useDispatch();
-    const auth = useAuth();
-    const { user } = auth;
-    console.log('userDetails: ', user);
 
     useEffect(() => {
         const fetchCardData = async () => {

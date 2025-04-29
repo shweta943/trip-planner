@@ -4,8 +4,13 @@ import LoginModal from '../SignUpModal';
 import useThemeContext from '../../hooks/useThemeContext';
 import { useSelector } from 'react-redux';
 import Dropdown from '../UI/Dropdown';
+import PropTypes from 'prop-types';
 
-const RightNavbar = () => {
+const RightNavbar = ({ showSnackbar }) => {
+
+    RightNavbar.propTypes = {
+        showSnackbar: PropTypes.func.isRequired
+    };
     const { mode, toggleTheme } = useThemeContext();
     const [formModal, setFormModal] = useState(false);
     const { userDetails } = useSelector(state => state.user);
@@ -18,7 +23,7 @@ const RightNavbar = () => {
         <>
             {!userDetails ? (
                 <Button
-                    variant="outlined"
+                    variant="contained"
                     sx={{
                         borderRadius: '20px',
                         px: 3,
@@ -26,13 +31,15 @@ const RightNavbar = () => {
                         fontWeight: 500,
                         color: 'black',
                         // borderColor: 'primary.main',
-                        textTransform: 'none',
+                        // textTransform: 'none',
                         transition: '0.3s ease',
+                        border:"none",
+                        outline:"none !important"
                         // '&:hover': {
                         //     backgroundColor: 'primary.main',
                         //     color: 'white',
                         // }
-                    }}    
+                    }}
                     onClick={getItinerary}
                 >
                     Login
@@ -40,9 +47,9 @@ const RightNavbar = () => {
 
             ) : (
                 <Dropdown />
-                
+
             )}
-            <LoginModal open={formModal} onFormClose={() => setFormModal(false)} />
+            <LoginModal open={formModal} onFormClose={() => setFormModal(false)} showSnackbar={showSnackbar} />
         </>
         // <IconButton>
         //     <IconButton color="inherit" onClick={toggleTheme}>

@@ -8,8 +8,13 @@ import Home from './pages/Home';
 import LoaderAnimation from './components/UI/LoaderAnimation';
 import SnackBar from './components/UI/SnackBar';
 import Navbar from './components/Navbar/Navbar';
+import useAuth from './hooks/useAuth';
 
 const App = () => {
+
+  const auth = useAuth();
+  const { user } = auth;
+  console.log('globalUserDetails: ', user);
 
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({
@@ -37,7 +42,7 @@ const App = () => {
     <>
       {loading ? <LoaderAnimation /> : (
         <>
-          <Navbar />
+          <Navbar showSnackbar={showSnackbar} />
           <Router >
             <Routes>
               <Route path="/" element={<Home showSnackbar={showSnackbar} />} />
