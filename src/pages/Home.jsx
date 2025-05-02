@@ -20,14 +20,14 @@ const Home = ({ showSnackbar }) => {
     useEffect(() => {
         const fetchCardData = async () => {
             const cardDestinations = await getCardDestinations();
-            dispatch(setCardDestinationsFromFb(cardDestinations)); // store it in Red    
+            dispatch(setCardDestinationsFromFb(cardDestinations));   
         };
         fetchCardData();
     }, [dispatch]);
 
     return (
         <div>
-            <HeroSection />
+            <HeroSection showSnackbar={showSnackbar} />
             <CardsSlider showSnackbar={showSnackbar} />
             <ImageGallery />
             <Testimonials />

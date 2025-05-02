@@ -9,6 +9,7 @@ import LoaderAnimation from './components/UI/LoaderAnimation';
 import SnackBar from './components/UI/SnackBar';
 import Navbar from './components/Navbar/Navbar';
 import useAuth from './hooks/useAuth';
+import ProtectedRoute from './components/Routes/ProtectedRoute';
 
 const App = () => {
 
@@ -46,7 +47,10 @@ const App = () => {
           <Router >
             <Routes>
               <Route path="/" element={<Home showSnackbar={showSnackbar} />} />
-              <Route path="/generate-trip" element={<GenerateTrip />} />
+              <Route path="/generate-trip" element={
+                <GenerateTrip />
+              }>
+              </Route>
             </Routes>
 
             <SnackBar open={snackbar.open} handleClose={handleClose} messageToShow={snackbar.message} severity={snackbar.severity} />
