@@ -8,20 +8,15 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 
-const steps = [
-    'Tell Us About Your Trip',
-    'Choose Your Interests & Vibes',
-    'Explore Indian Culture & Heritage',
-    'Share Your Contact Details',
-];
-
-const StepperWrapper = ({ children }) => {
-
+const StepperWrapper = ({ stepsComponents }) => {
+    
     StepperWrapper.propTypes = {
-        children: PropTypes.arrayOf(PropTypes.node).isRequired,
+        stepsComponents: PropTypes.array,
     };
+    console.log('stepsComponents: ', stepsComponents);
     const [activeStep, setActiveStep] = useState(0);
     const [skipped, setSkipped] = useState(new Set());
+    const [direction, setDirection] = useState(0);
 
     const isStepOptional = (step) => {
         return step === 1;
@@ -40,10 +35,12 @@ const StepperWrapper = ({ children }) => {
 
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         setSkipped(newSkipped);
+        setDirection(1);
     };
 
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
+        setDirection(-1);
     };
 
     const handleSkip = () => {
@@ -65,9 +62,26 @@ const StepperWrapper = ({ children }) => {
         setActiveStep(0);
         setSkipped(new Set());
     };
+    const variants = {
+        enter: (direction) => ({
+            x: direction > 0 ? 300 : -300,
+            opacity: 0,
+        }),
+        center: {
+            x: 0,
+            opacity: 1,
+        },
+        exit: (direction) => ({
+            x: direction < 0 ? 300 : -300,
+            opacity: 0,
+        }),
+    };
+
+    const steps = stepsComponents.map((step) => step.label);
+    const CurrentStepComponent = stepsComponents[activeStep]?.Component;
 
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: '100%', overflowX: 'hidden', position: 'relative' }}>
             <Stepper activeStep={activeStep}>
                 {steps.map((label, index) => {
                     const stepProps = {};
@@ -89,13 +103,15 @@ const StepperWrapper = ({ children }) => {
                     );
                 })}
             </Stepper>
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" custom={direction}>
                 {activeStep === steps.length ? (
                     <motion.div
-                        key="complete"
-                        initial={{ x: 300, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -300, opacity: 0 }}
+                        key={activeStep}
+                        custom={direction}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
                         transition={{ duration: 0.4 }}
                     >
                         <Typography sx={{ mt: 2, mb: 1 }}>
@@ -110,12 +126,24 @@ const StepperWrapper = ({ children }) => {
                 ) : (
                     <motion.div
                         key={activeStep}
-                        initial={{ x: 300, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -300, opacity: 0 }}
+                        custom={direction}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
                         transition={{ duration: 0.4 }}
                     >
-                        <Box sx={{ mt: 4 }}>{children}</Box>
+                        <Box sx={{ mt: 4 }}>
+                            {CurrentStepComponent && (
+                                <CurrentStepComponent
+                                    onNext={handleNext}
+                                    onBack={handleBack}
+                                    onSkip={handleSkip}
+                                    isLastStep={activeStep === steps.length - 1}
+                                    isFirstStep={activeStep === 0}
+                                />
+                            )}
+                        </Box>
 
                         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                             <Button

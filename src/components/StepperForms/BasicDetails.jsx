@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Box,
     TextField,
-    Typography,
-    Paper,
     Grid2,
-    MenuItem
+    MenuItem,
+    Divider,
+    Typography
+    // Autocomplete
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import Autocomplete from '../UI/Autocomplete';
+import Slider from '@mui/material/Slider';
+import { useQuery } from '@tanstack/react-query';
+import getGeminiResponse from '../../config/GeminiAI/geminiAi';
+import { Chip, Stack, Tooltip } from '@mui/material';
+import FormStepLayout from '../../components/StepperForms/FormStepLayout';
+import ClassicButton from '../UI/ClassicButton';
+
 
 const CssTextField = styled(TextField)({
     '& label.Mui-focused': {
@@ -29,14 +38,45 @@ const CssTextField = styled(TextField)({
     },
 });
 
+const prompt = `Provide names of most popular 6 travel destinations in India. Include only the names of places in the response. Also dont include any array name in the json response.`;
 
-const BasicDetails = ({ onNext }) => {
+const BasicDetails = () => {
+
+
+    const [selectedDest, setSelectedDest] = useState('');
+    const [chipDest, setChipDest] = useState([]);
+
+
+    const { data } = useQuery({
+        queryKey: ['geminiBasicDetails', prompt],
+        queryFn: () => getGeminiResponse(prompt),
+        staleTime: 1000 * 60 * 60 * 24,
+    });
+
+    useEffect(() => {
+        if (!data) return;
+
+        if (Array.isArray(data)) {
+            setChipDest(data);
+        } else if (Array.isArray(data?.destinations)) {
+            setChipDest(data.destinations);
+        } else if (Array.isArray(data?.popular_destinations)) {
+            setChipDest(data.popular_destinations);
+        } else {
+            console.warn("Unexpected Gemini data format:", data);
+            setChipDest([]); // or show a fallback chip
+        }
+    }, [data]);
+
+    console.log('data: ', data);
+
     const [formData, setFormData] = useState({
         destination: '',
         startDate: '',
         endDate: '',
         travelers: 1,
         tripType: 'solo',
+        budget: ''
     });
 
     const handleChange = (e) => {
@@ -47,73 +87,68 @@ const BasicDetails = ({ onNext }) => {
         e.preventDefault();
         onNext(formData); // Pass data to parent
     };
+    const onClickChip = (destination) => {
+        setSelectedDest(destination);
+    };
 
     return (
-        <Paper
-            elevation={6}
-            sx={{
-                maxWidth: '700px',
-                mx: 'auto',
-                p: 4,
-                mt: 5,
-                borderRadius: 4,
-                backgroundColor: 'white',
-            }}
-        >
-            <Typography
-                variant="h5"
-                fontWeight="bold"
-                textAlign="center"
-                color="text.primary"
-                gutterBottom
-            >
-                Tell Us About Your Trip
-            </Typography>
-
+        <FormStepLayout title='Tell us about your Trip'>
             <Box component="form" onSubmit={handleSubmit} noValidate>
                 {/* Destination */}
-                <Box mb={2}>
-                    <CssTextField
-                        fullWidth
-                        label="Destination"
-                        name="destination"
-                        value={formData.destination}
-                        onChange={handleChange}
-                        placeholder="e.g. Manali, Rajasthan"
-                        required
-                    />
+                <Box sx={{ mb: 4 }}>
+                    <Autocomplete />
+                    <Stack direction="row" spacing={1} sx={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        mt: 2,
+                        mb: 2
+                    }}>
+                        {chipDest?.map((dest, index) => (
+                            <Tooltip title="Popular destination suggested by AI" arrow key={index}>
+                                <Chip label={dest} size="small" onClick={() => onClickChip(dest)} sx={{
+                                    background: 'linear-gradient(to right, #fce3ec, #ffe8d6)',
+                                    color: '#d6336c',
+                                    fontWeight: 500,
+                                }}
+                                />
+                            </Tooltip>
+                        ))}
+                        {chipDest.length === 0 && <Chip label="No suggestions found" disabled />}
+                    </Stack>
                 </Box>
 
                 {/* Dates */}
-                <Grid2 container spacing={2} mb={2}>
-                    <Grid2 item xs={12} sm={6}>
-                        <CssTextField
-                            fullWidth
-                            type="date"
-                            label="Start Date"
-                            name="startDate"
-                            value={formData.startDate}
-                            onChange={handleChange}
-                            InputLabelProps={{ shrink: true }}
-                            required
-                        />
+                <Box sx={{ mb: 4 }}>
+                    <Grid2 container spacing={2} mb={2}>
+                        <Grid2 item xs={12} sm={6}>
+                            <CssTextField
+                                fullWidth
+                                type="date"
+                                label="Start Date"
+                                name="startDate"
+                                value={formData.startDate}
+                                onChange={handleChange}
+                                InputLabelProps={{ shrink: true }}
+                                required
+                            />
+                        </Grid2>
+                        <Grid2 item xs={12} sm={6}>
+                            <CssTextField
+                                fullWidth
+                                type="date"
+                                label="End Date"
+                                name="endDate"
+                                value={formData.endDate}
+                                onChange={handleChange}
+                                InputLabelProps={{ shrink: true }}
+                                required
+                            />
+                        </Grid2>
                     </Grid2>
-                    <Grid2 item xs={12} sm={6}>
-                        <CssTextField
-                            fullWidth
-                            type="date"
-                            label="End Date"
-                            name="endDate"
-                            value={formData.endDate}
-                            onChange={handleChange}
-                            InputLabelProps={{ shrink: true }}
-                            required
-                        />
-                    </Grid2>
-                </Grid2>
+                </Box>
 
                 {/* Travelers */}
-                <Box mb={2}>
+                <Box sx={{ mb: 4 }}>
                     <CssTextField
                         fullWidth
                         type="number"
@@ -125,7 +160,7 @@ const BasicDetails = ({ onNext }) => {
                 </Box>
 
                 {/* Trip Type */}
-                <Box mb={2}>
+                <Box sx={{ mb: 4 }}>
                     <CssTextField
                         select
                         fullWidth
@@ -141,18 +176,40 @@ const BasicDetails = ({ onNext }) => {
                     </CssTextField>
                 </Box>
 
-                {/* <CssTextField label="Custom CSS" id="custom-css-outlined-input" /> */}
+                <Box mb={3}>
+                    <Typography variant="subtitle1" fontWeight="bold">Choose Your Own Budget</Typography>
+                    <Slider
+                        value={formData.budget}
+                        onChange={(e, newValue) =>
+                            setFormData((prev) => ({ ...prev, budget: newValue }))
+                        }
+                        min={5000}
+                        max={200000}
+                        step={5000}
+                        valueLabelDisplay="on"
+                        sx={{
+                            color: '#d6336c',
+                            fontWeight: 500,
+                        }}
+                        marks={[
+                            { value: 5000, label: "5K" },
+                            { value: 50000, label: "50K" },
+                            { value: 100000, label: "1L" },
+                            { value: 200000, label: "2L" },
+                        ]}
+                    />
+                </Box>
+                <Box display="flex" alignItems="center" my={2}>
+                    <Divider sx={{ flexGrow: 1 }} />
+                    <Typography sx={{ mx: 2, color: 'gray' }}>OR</Typography>
+                    <Divider sx={{ flexGrow: 1 }} />
+                </Box>
 
-                {/* Submit Button */}
-                <button
-                    className="mt-6 px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 rounded-lg shadow-lg hover:shadow-orange-500/50 transition duration-300"
-                    // onClick={handleButtonClick}
-                >
-                    Get Itinerary
-                </button>
-
+                <div>
+                    <ClassicButton text="Set a Smart Budget for me" />
+                </div>
             </Box>
-        </Paper>
+        </FormStepLayout >
     );
 };
 
