@@ -14,7 +14,7 @@ const GenerateTrip = () => {
       label: "Tell Us About Your Trip",
       Component: BasicDetails,
       isBasicDetailsValid: isBasicDetailsValid,
-      onValidate: setIsBasicDetailsValid
+      onValidationChange: setIsBasicDetailsValid
     },
     {
       label: "Choose Your Interests & Vibes",

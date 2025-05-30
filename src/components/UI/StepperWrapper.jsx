@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 const StepperWrapper = ({ stepsComponents }) => {
-    
+
     StepperWrapper.propTypes = {
         stepsComponents: PropTypes.array,
     };
@@ -77,7 +77,7 @@ const StepperWrapper = ({ stepsComponents }) => {
     };
 
     const steps = stepsComponents.map((step) => step.label);
-    const { Component, isBasicDetailsValid, onValidate } = stepsComponents[activeStep];
+    const { Component, isBasicDetailsValid, onValidationChange } = stepsComponents[activeStep];
     console.log('isValid: ', isBasicDetailsValid);
 
     return (
@@ -141,7 +141,7 @@ const StepperWrapper = ({ stepsComponents }) => {
                                     onSkip={handleSkip}
                                     isLastStep={activeStep === steps.length - 1}
                                     isFirstStep={activeStep === 0}
-                                    onValidate={onValidate}
+                                    onValidationChange={onValidationChange}
                                 />
                             )}
                         </Box>
@@ -161,7 +161,7 @@ const StepperWrapper = ({ stepsComponents }) => {
                                     Skip
                                 </Button>
                             )}
-                            <Button onClick={handleNext} sx={{ color: 'black' }}>
+                            <Button onClick={handleNext} disabled={activeStep === 0 && !isBasicDetailsValid} sx={{ color: 'black' }}>
                                 {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                             </Button>
                         </Box>

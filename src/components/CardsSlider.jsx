@@ -29,7 +29,7 @@ const CardsSlider = ({ showSnackbar }) => {
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1,
-    autoplay: false,
+    autoplay: true,
     autoplaySpeed: 2500,
     responsive: [
       {
