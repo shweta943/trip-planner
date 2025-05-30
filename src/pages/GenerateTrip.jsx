@@ -6,11 +6,15 @@ import { useState } from 'react';
 
 const GenerateTrip = () => {
 
+  const [isBasicDetailsValid, setIsBasicDetailsValid] = useState(false);
+
   //- Control steps from here
   const steps = [
     {
       label: "Tell Us About Your Trip",
       Component: BasicDetails,
+      isBasicDetailsValid: isBasicDetailsValid,
+      onValidate: setIsBasicDetailsValid
     },
     {
       label: "Choose Your Interests & Vibes",

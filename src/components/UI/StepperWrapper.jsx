@@ -13,7 +13,6 @@ const StepperWrapper = ({ stepsComponents }) => {
     StepperWrapper.propTypes = {
         stepsComponents: PropTypes.array,
     };
-    console.log('stepsComponents: ', stepsComponents);
     const [activeStep, setActiveStep] = useState(0);
     const [skipped, setSkipped] = useState(new Set());
     const [direction, setDirection] = useState(0);
@@ -78,7 +77,8 @@ const StepperWrapper = ({ stepsComponents }) => {
     };
 
     const steps = stepsComponents.map((step) => step.label);
-    const CurrentStepComponent = stepsComponents[activeStep]?.Component;
+    const { Component, isBasicDetailsValid, onValidate } = stepsComponents[activeStep];
+    console.log('isValid: ', isBasicDetailsValid);
 
     return (
         <Box sx={{ width: '100%', overflowX: 'hidden', position: 'relative' }}>
@@ -134,13 +134,14 @@ const StepperWrapper = ({ stepsComponents }) => {
                         transition={{ duration: 0.4 }}
                     >
                         <Box sx={{ mt: 4 }}>
-                            {CurrentStepComponent && (
-                                <CurrentStepComponent
+                            {Component && (
+                                <Component
                                     onNext={handleNext}
                                     onBack={handleBack}
                                     onSkip={handleSkip}
                                     isLastStep={activeStep === steps.length - 1}
                                     isFirstStep={activeStep === 0}
+                                    onValidate={onValidate}
                                 />
                             )}
                         </Box>

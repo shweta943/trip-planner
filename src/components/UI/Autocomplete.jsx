@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/material/styles';
 import debounce from 'lodash.debounce';
 import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 
 // function sleep(duration) {
 //     return new Promise((resolve) => {
@@ -44,6 +45,9 @@ export default function AutocompleteDropdown({ onPlaceSelect }) {
     const [loading, setLoading] = useState(false);
 
     const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY;
+
+    const dispatch = useDispatch();
+    const selectedDestination = useSelector((state) => state?.stepperFormData?.formData?.basicDetails?.destination);
 
     // const handleOpen = () => {
 
@@ -128,6 +132,7 @@ export default function AutocompleteDropdown({ onPlaceSelect }) {
                     label="Search place in India"
                     mb={2}
                     onChange={(e) => setInput(e.target.value)}
+                    required
                     slotProps={{
                         input: {
                             ...params.InputProps,

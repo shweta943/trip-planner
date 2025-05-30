@@ -16,6 +16,9 @@ import getGeminiResponse from '../../config/GeminiAI/geminiAi';
 import { Chip, Stack, Tooltip } from '@mui/material';
 import FormStepLayout from '../../components/StepperForms/FormStepLayout';
 import ClassicButton from '../UI/ClassicButton';
+import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateBasicDetails } from '../../redux/formDataSlice';
 
 
 const CssTextField = styled(TextField)({
@@ -40,12 +43,17 @@ const CssTextField = styled(TextField)({
 
 const prompt = `Provide names of most popular 6 travel destinations in India. Include only the names of places in the response. Also dont include any array name in the json response.`;
 
-const BasicDetails = () => {
+const BasicDetails = ({ onValidate }) => {
+
+    BasicDetails.propTypes = {
+        onValidate: PropTypes.func.isRequired
+    }
 
 
     const [selectedDest, setSelectedDest] = useState('');
     const [chipDest, setChipDest] = useState([]);
-
+    const dispatch = useDispatch();
+    const formData = useSelector((state) => state.stepperFormData?.formData?.basicDetails);
 
     const { data } = useQuery({
         queryKey: ['geminiBasicDetails', prompt],
@@ -64,23 +72,12 @@ const BasicDetails = () => {
             setChipDest(data.popular_destinations);
         } else {
             console.warn("Unexpected Gemini data format:", data);
-            setChipDest([]); // or show a fallback chip
+            setChipDest([]);
         }
     }, [data]);
 
-    console.log('data: ', data);
-
-    const [formData, setFormData] = useState({
-        destination: '',
-        startDate: '',
-        endDate: '',
-        travelers: 1,
-        tripType: 'solo',
-        budget: ''
-    });
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleChange = (field) => (e) => {
+        dispatch(updateBasicDetails({ field, value: e.target.value }));
     };
 
     const handleSubmit = (e) => {
@@ -126,8 +123,8 @@ const BasicDetails = () => {
                                 type="date"
                                 label="Start Date"
                                 name="startDate"
-                                value={formData.startDate}
-                                onChange={handleChange}
+                                value={formData?.startDate}
+                                onChange={handleChange('startDate')}
                                 InputLabelProps={{ shrink: true }}
                                 required
                             />
@@ -138,8 +135,8 @@ const BasicDetails = () => {
                                 type="date"
                                 label="End Date"
                                 name="endDate"
-                                value={formData.endDate}
-                                onChange={handleChange}
+                                value={formData?.endDate}
+                                onChange={handleChange('endDate')}
                                 InputLabelProps={{ shrink: true }}
                                 required
                             />
@@ -154,8 +151,8 @@ const BasicDetails = () => {
                         type="number"
                         name="travelers"
                         label="Number of Travelers"
-                        value={formData.travelers}
-                        onChange={handleChange}
+                        value={formData?.travelers}
+                        onChange={handleChange('travelers')}
                     />
                 </Box>
 
@@ -166,8 +163,8 @@ const BasicDetails = () => {
                         fullWidth
                         name="tripType"
                         label="Trip Type"
-                        value={formData.tripType}
-                        onChange={handleChange}
+                        value={formData?.tripType}
+                        onChange={handleChange('tripType')}
                     >
                         <MenuItem value="solo">Solo</MenuItem>
                         <MenuItem value="couple">Couple</MenuItem>
@@ -179,7 +176,7 @@ const BasicDetails = () => {
                 <Box mb={3}>
                     <Typography variant="subtitle1" fontWeight="bold">Choose Your Own Budget</Typography>
                     <Slider
-                        value={formData.budget}
+                        value={formData?.budget}
                         onChange={(e, newValue) =>
                             setFormData((prev) => ({ ...prev, budget: newValue }))
                         }
