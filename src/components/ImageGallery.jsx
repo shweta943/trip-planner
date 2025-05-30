@@ -29,7 +29,7 @@ const ImageGallery = () => {
 
     return (
         <div className="bg-[#f9f9f9] py-10 px-4">
-            <Container maxWidth='xl'>
+            <Container maxWidth='lg'>
 
                 <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">Discover India: A Visual Journey</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
