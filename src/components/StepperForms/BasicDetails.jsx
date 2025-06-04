@@ -42,11 +42,11 @@ const CssTextField = styled(TextField)({
 });
 
 
-const BasicDetails = ({ onValidationChange }) => {
+const BasicDetails = () => {
 
-    BasicDetails.propTypes = {
-        onValidationChange: PropTypes.func.isRequired
-    }
+    // BasicDetails.propTypes = {
+    //     onValidationChange: PropTypes.func.isRequired
+    // }
 
 
     const [selectedDest, setSelectedDest] = useState('');
@@ -63,27 +63,22 @@ const BasicDetails = ({ onValidationChange }) => {
         staleTime: 1000 * 60 * 60 * 24,
     });
 
-    const mutation = useMutation({
-        mutationFn: getGeminiResponse(budgetPrompt),
-        onSuccess: (data) => {
-            console.log('Smart budget:', data);
-            // You can update state or show UI feedback here
-        },
-        onError: (error) => {
-            console.error('Error:', error);
-        },
-    })
+    
+    // For budget setting button
+    const { mutate: fetchSuggestedBudget, data: budgetData, isPending } = useMutation({
+        mutationFn: () => getGeminiResponse(budgetPrompt),
+    });
+  
+    // useEffect(() => {
+    //     const isValid =
+    //         basicDetails?.destination.trim() !== '' &&
+    //         basicDetails?.startDate.trim() !== '' &&
+    //         basicDetails?.endDate.trim() !== '' &&
+    //         Number(basicDetails?.travelers) > 0 &&
+    //         basicDetails?.tripType.trim() !== '';
 
-    useEffect(() => {
-        const isValid =
-            basicDetails?.destination.trim() !== '' &&
-            basicDetails?.startDate.trim() !== '' &&
-            basicDetails?.endDate.trim() !== '' &&
-            Number(basicDetails?.travelers) > 0 &&
-            basicDetails?.tripType.trim() !== '';
-
-        onValidationChange(isValid);
-    }, [basicDetails, onValidationChange]);
+    //     onValidationChange(isValid);
+    // }, [basicDetails, onValidationChange]);
 
     useEffect(() => {
         if (!data) return;
@@ -100,8 +95,8 @@ const BasicDetails = ({ onValidationChange }) => {
         }
     }, [data]);
 
-    const handleChange = (field) => (e) => {
-        dispatch(updateBasicDetails({ field, value: e.target.value }));
+    const handleChange = (field, value) => {
+        dispatch(updateBasicDetails({ [field]: value }));
     };
 
     const handleSubmit = (e) => {
@@ -110,6 +105,9 @@ const BasicDetails = ({ onValidationChange }) => {
     };
     const onClickChip = (destination) => {
         setSelectedDest(destination);
+    };
+    const handleSuggestBudgetBtn = () => {
+        fetchSuggestedBudget()
     };
 
     return (
@@ -148,7 +146,7 @@ const BasicDetails = ({ onValidationChange }) => {
                                 label="Start Date"
                                 name="startDate"
                                 value={basicDetails?.startDate}
-                                onChange={handleChange('startDate')}
+                                onChange={(event) => handleChange('startDate', event.target.value)}
                                 InputLabelProps={{ shrink: true }}
                                 required
                             />
@@ -160,7 +158,7 @@ const BasicDetails = ({ onValidationChange }) => {
                                 label="End Date"
                                 name="endDate"
                                 value={basicDetails?.endDate}
-                                onChange={handleChange('endDate')}
+                                onChange={(event) => handleChange('endDate', event.target.value)}
                                 InputLabelProps={{ shrink: true }}
                                 required
                             />
@@ -176,7 +174,7 @@ const BasicDetails = ({ onValidationChange }) => {
                         name="travelers"
                         label="Number of Travelers"
                         value={basicDetails?.travelers}
-                        onChange={handleChange('travelers')}
+                        onChange={(event) => handleChange('travelers', event.target.value)}
                     />
                 </Box>
 
@@ -188,7 +186,7 @@ const BasicDetails = ({ onValidationChange }) => {
                         name="tripType"
                         label="Trip Type"
                         value={basicDetails?.tripType}
-                        onChange={handleChange('tripType')}
+                        onChange={(event) => handleChange('tripType', event.target.value)}
                     >
                         <MenuItem value="solo">Solo</MenuItem>
                         <MenuItem value="couple">Couple</MenuItem>
@@ -196,13 +194,14 @@ const BasicDetails = ({ onValidationChange }) => {
                         <MenuItem value="friends">Friends</MenuItem>
                     </CssTextField>
                 </Box>
-
+                
+                {/* Budget section */}
                 <Box mb={3}>
                     <Typography variant="subtitle1" fontWeight="bold">Choose Your Own Budget</Typography>
                     <Slider
                         value={basicDetails?.budget}
                         onChange={(e, newValue) =>
-                            setFormData((prev) => ({ ...prev, budget: newValue }))
+                            handleChange('budget', newValue)
                         }
                         min={5000}
                         max={200000}
@@ -219,6 +218,24 @@ const BasicDetails = ({ onValidationChange }) => {
                             { value: 200000, label: "2L" },
                         ]}
                     />
+                    <TextField
+                        type="number"
+                        label="₹"
+                        size="small"
+                        value={basicDetails?.budget || 5000}
+                        onChange={(e) => {
+                            const newBudget = Number(e.target.value);
+                            if (newBudget >= 5000 && newBudget <= 200000) {
+                                handleChange('budget', newBudget);
+                            }
+                        }}
+                        inputProps={{
+                            step: 5000,
+                            min: 5000,
+                            max: 200000,
+                            style: { width: '100px' },
+                        }}
+                    />
                 </Box>
                 <Box display="flex" alignItems="center" my={2}>
                     <Divider sx={{ flexGrow: 1 }} />
@@ -227,7 +244,7 @@ const BasicDetails = ({ onValidationChange }) => {
                 </Box>
 
                 <div>
-                    <ClassicButton text="Set a Smart Budget for me" />
+                    <ClassicButton onClick={handleSuggestBudgetBtn} text="Set a Smart Budget for me" />
                 </div>
             </Box>
         </FormStepLayout >

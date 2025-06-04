@@ -12,9 +12,7 @@ const GenerateTrip = () => {
   const steps = [
     {
       label: "Tell Us About Your Trip",
-      Component: BasicDetails,
-      isBasicDetailsValid: isBasicDetailsValid,
-      onValidationChange: setIsBasicDetailsValid
+      Component: BasicDetails
     },
     {
       label: "Choose Your Interests & Vibes",

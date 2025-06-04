@@ -77,8 +77,7 @@ const StepperWrapper = ({ stepsComponents }) => {
     };
 
     const steps = stepsComponents.map((step) => step.label);
-    const { Component, isBasicDetailsValid, onValidationChange } = stepsComponents[activeStep];
-    console.log('isValid: ', isBasicDetailsValid);
+    const { Component, onValidationChange } = stepsComponents[activeStep];
 
     return (
         <Box sx={{ width: '100%', overflowX: 'hidden', position: 'relative' }}>
@@ -161,7 +160,7 @@ const StepperWrapper = ({ stepsComponents }) => {
                                     Skip
                                 </Button>
                             )}
-                            <Button onClick={handleNext} disabled={activeStep === 0 && !isBasicDetailsValid} sx={{ color: 'black' }}>
+                            <Button onClick={handleNext} sx={{ color: 'black' }}>
                                 {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                             </Button>
                         </Box>

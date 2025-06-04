@@ -10,7 +10,6 @@ const ClassicButton = ({ onClick, disabled = false, text }) => {
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
       className={`px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 rounded-lg shadow-lg transition duration-300 ${disabled
         ? "opacity-50 cursor-not-allowed"
         : "hover:shadow-orange-500/50"

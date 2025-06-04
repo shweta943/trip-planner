@@ -29,6 +29,7 @@ const userSlice = createSlice({
                 ...state.basicDetails,
                 ...action.payload
             }
+            console.log('updated basicDetails: ', state.basicDetails);
         },
     },
     setInterestsVibes: (state, action) => {
