@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import destinationReducer from "./destinationSlice";
 import userReducer from "./userSlice";
+import stepperFormReducer from './formDataSlice';
 
 const store = configureStore({
     reducer: {
       destinations: destinationReducer,
-      user: userReducer // Add more reducers if needed
+      user: userReducer,
+      stepperFormData: stepperFormReducer
     }
   });
   

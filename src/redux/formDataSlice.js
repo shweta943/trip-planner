@@ -25,11 +25,10 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         updateBasicDetails: (state, action) => {
-            state.basicDetails = {
-                ...state.basicDetails,
+            state.formData.basicDetails = {
+                ...state.formData.basicDetails,
                 ...action.payload
-            }
-            console.log('updated basicDetails: ', state.basicDetails);
+            };
         },
     },
     setInterestsVibes: (state, action) => {

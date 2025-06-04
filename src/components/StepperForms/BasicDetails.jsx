@@ -63,12 +63,12 @@ const BasicDetails = () => {
         staleTime: 1000 * 60 * 60 * 24,
     });
 
-    
+
     // For budget setting button
     const { mutate: fetchSuggestedBudget, data: budgetData, isPending } = useMutation({
         mutationFn: () => getGeminiResponse(budgetPrompt),
     });
-  
+
     // useEffect(() => {
     //     const isValid =
     //         basicDetails?.destination.trim() !== '' &&
@@ -194,7 +194,7 @@ const BasicDetails = () => {
                         <MenuItem value="friends">Friends</MenuItem>
                     </CssTextField>
                 </Box>
-                
+
                 {/* Budget section */}
                 <Box mb={3}>
                     <Typography variant="subtitle1" fontWeight="bold">Choose Your Own Budget</Typography>
