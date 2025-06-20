@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/material/styles';
 import debounce from 'lodash.debounce';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { updateBasicDetails } from '../../redux/formDataSlice';
 
 

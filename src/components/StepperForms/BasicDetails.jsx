@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Autocomplete from '../UI/Autocomplete';
-import Slider from '@mui/material/Slider';
 import { useQuery } from '@tanstack/react-query';
 import getGeminiResponse from '../../config/GeminiAI/geminiAi';
 import { Chip, Stack, Tooltip } from '@mui/material';
@@ -54,8 +53,7 @@ const BasicDetails = () => {
     const dispatch = useDispatch();
     const basicDetails = useSelector((state) => state.stepperFormData?.formData?.basicDetails);
 
-    const destPrompt = `Provide names of most popular 6 travel destinations in India. Include only the names of places in the response. Also dont include any array name in the json response.`;
-    const budgetPrompt = `Suggest a travel budget for a ${basicDetails?.tripType} trip to ${basicDetails?.destination} from ${basicDetails?.startDate} to ${basicDetails?.endDate} for ${basicDetails?.travelers} travelers in INR.`
+    const destPrompt = `Provide names of most popular 6 travel destinations in India. Include only the names of places in the response. Also dont include any array name in the json response. Respond ONLY in valid JSON format. Do NOT include markdown backticks or any explanation.`;
 
     const { data } = useQuery({
         queryKey: ['geminiBasicDetails', destPrompt],
@@ -63,10 +61,30 @@ const BasicDetails = () => {
         staleTime: 1000 * 60 * 60 * 24,
     });
 
+    const budgetPrompt = `Based on the following trip details, estimate a total budget in INR. Respond ONLY with a number, without any currency symbol, explanation, or text.
+
+                Trip Details:
+                - Destination: ${basicDetails.destination || "Unknown"}
+                - Start Date: ${basicDetails.startDate}
+                - End Date: ${basicDetails.endDate}
+                - Travelers: ${basicDetails.travelers}
+                - Trip Type: ${basicDetails.tripType}
+
+                Output format:
+                Only a number like 32000;`
 
     // For budget setting button
-    const { mutate: fetchSuggestedBudget, data: budgetData, isPending } = useMutation({
+    const { mutate: fetchSuggestedBudget, isPending: isBudgetPending } = useMutation({
         mutationFn: () => getGeminiResponse(budgetPrompt),
+        onSuccess: (budgetData) => {
+            // Example: update Redux store with suggested budget
+            // const suggestedBudget = data?.budget; // or extract based on your API response
+            // if (budgetData) {
+            // dispatch(updateBasicDetails({ budget: suggestedBudget }));
+            // Optionally show a toast/snackbar
+            handleChange('budget', budgetData);
+            // }
+        },
     });
 
     // useEffect(() => {
@@ -99,20 +117,17 @@ const BasicDetails = () => {
         dispatch(updateBasicDetails({ [field]: value }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onNext(basicDetails); // Pass data to parent
-    };
     const onClickChip = (destination) => {
         setSelectedDest(destination);
     };
-    const handleSuggestBudgetBtn = () => {
+    const handleSuggestBudgetBtn = (e) => {
+        e.preventDefault();
         fetchSuggestedBudget()
     };
 
     return (
         <FormStepLayout title='Tell us about your Trip'>
-            <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Box component="form" noValidate>
                 {/* Destination */}
                 <Box sx={{ mb: 4 }}>
                     <Autocomplete />
@@ -194,58 +209,6 @@ const BasicDetails = () => {
                         <MenuItem value="friends">Friends</MenuItem>
                     </CssTextField>
                 </Box>
-
-                {/* Budget section */}
-                <Box mb={3}>
-                    <Typography variant="subtitle1" fontWeight="bold">Choose Your Own Budget</Typography>
-                    <Slider
-                        value={basicDetails?.budget}
-                        onChange={(e, newValue) =>
-                            handleChange('budget', newValue)
-                        }
-                        min={5000}
-                        max={200000}
-                        step={5000}
-                        valueLabelDisplay="on"
-                        sx={{
-                            color: '#d6336c',
-                            fontWeight: 500,
-                        }}
-                        marks={[
-                            { value: 5000, label: "5K" },
-                            { value: 50000, label: "50K" },
-                            { value: 100000, label: "1L" },
-                            { value: 200000, label: "2L" },
-                        ]}
-                    />
-                    <TextField
-                        type="number"
-                        label="₹"
-                        size="small"
-                        value={basicDetails?.budget || 5000}
-                        onChange={(e) => {
-                            const newBudget = Number(e.target.value);
-                            if (newBudget >= 5000 && newBudget <= 200000) {
-                                handleChange('budget', newBudget);
-                            }
-                        }}
-                        inputProps={{
-                            step: 5000,
-                            min: 5000,
-                            max: 200000,
-                            style: { width: '100px' },
-                        }}
-                    />
-                </Box>
-                <Box display="flex" alignItems="center" my={2}>
-                    <Divider sx={{ flexGrow: 1 }} />
-                    <Typography sx={{ mx: 2, color: 'gray' }}>OR</Typography>
-                    <Divider sx={{ flexGrow: 1 }} />
-                </Box>
-
-                <div>
-                    <ClassicButton onClick={handleSuggestBudgetBtn} text="Set a Smart Budget for me" />
-                </div>
             </Box>
         </FormStepLayout >
     );

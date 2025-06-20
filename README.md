@@ -35,7 +35,7 @@ Get AI-powered itinerary suggestions for activities, stays, and food.
 
 Save & modify your trip plan.
 
-🎯 Future Enhancements
+🎯 Future Enhancements:
 
 ✨ Multi-user collaboration on trip planning.
 

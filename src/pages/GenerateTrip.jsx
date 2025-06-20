@@ -1,12 +1,12 @@
 import BasicDetails from "../components/StepperForms/BasicDetails";
 import InterestAndVibes from "../components/StepperForms/InterestAndVibes";
-import CultureHeritage from "../components/StepperForms/CultureHeritage";
+import SetBudget from "../components/StepperForms/SetBudget";
 import StepperWrapper from "../components/UI/StepperWrapper";
-import { useState } from 'react';
+// import { useState } from 'react';
 
 const GenerateTrip = () => {
 
-  const [isBasicDetailsValid, setIsBasicDetailsValid] = useState(false);
+  // const [isBasicDetailsValid, setIsBasicDetailsValid] = useState(false);
 
   //- Control steps from here
   const steps = [
@@ -19,8 +19,8 @@ const GenerateTrip = () => {
       Component: InterestAndVibes,
     },
     {
-      label: "Explore Indian Culture & Heritage",
-      Component: CultureHeritage,
+      label: "Set a Budget",
+      Component: SetBudget,
     },
   ];
   return (

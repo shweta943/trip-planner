@@ -30,11 +30,11 @@ const userSlice = createSlice({
                 ...action.payload
             };
         },
-    },
-    setInterestsVibes: (state, action) => {
+        updateBudget: (state, action) => {
         state.formData = action.payload;
     },
-    setCultureHeritage: (state, action) => {
+    },
+    setInterestsVibes: (state, action) => {
         state.formData = action.payload;
     },
     setLoading: (state, action) => {

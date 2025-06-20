@@ -12,8 +12,7 @@ const HeroSection = ({ showSnackbar }) => {
     const navigate = useNavigate();
 
     const handleButtonClick = () => {
-        !userDetails ?
-            showSnackbar("Please login to continue generating itinerary!", "error") : navigate('/generate-trip');
+        navigate('/generate-trip');
     };
 
 
