@@ -2,15 +2,13 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GOOGLE_GEMINI_API_KEY });
 
-async function getGeminiResponse(userPrompt) {
+async function getGeminiResponse(userPrompt, { parseJson = false } = {}) {
     // Define the query for a JSON array response
-    const query = `${userPrompt}
-      Respond ONLY in valid JSON format. Do NOT include markdown backticks or any explanation.`
 
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.0-flash",
-            contents: query,
+            contents: userPrompt,
         })
 
         // Extract only the JSON part
