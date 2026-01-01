@@ -1,6 +1,6 @@
 // components/ImageGallery.jsx
 import { useQueries, UseQueryResult } from '@tanstack/react-query';
-import getUnspashImages from '../config/Unsplash/getUnsplashImage';
+// import getUnspashImages from '../config/Unsplash/getUnsplashImage';
 import { Container } from '@mui/material';
 
 interface UnsplashUrls {
@@ -18,10 +18,10 @@ interface GalleryImage {
   description?: string | null;
 }
 
-const fetchImageForDestination = async (destination: string): Promise<UnsplashPhoto[]> => {
-    const response = await getUnspashImages(destination, 1);
-    return response as UnsplashPhoto[];
-};
+// const fetchImageForDestination = async (destination: string): Promise<UnsplashPhoto[]> => {
+//     const response = await getUnspashImages(destination, 1);
+//     return response as UnsplashPhoto[];
+// };
 
 const destinationsInIndia = ['Jaisalmer', 'Manali', 'Hampi', 'Kerala', 'Kutch', 'Andaman and Nicobar Islands', 'Coorg', 'Ladakh', 'Ooty', 'Nainital', 'Rishikesh', 'Munnar'];
 

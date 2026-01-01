@@ -1,6 +1,6 @@
-import { db } from "./firebase";
+// import { db } from "./firebase";
 import { getDocs, collection } from "firebase/firestore"; // use this instead of node_modules path
-import getUnsplashImages from "../Unsplash/getUnsplashImage";
+// import getUnsplashImages from "../Unsplash/getUnsplashImage";
 
 interface Destination {
   id: string;

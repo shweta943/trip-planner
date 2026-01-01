@@ -5,12 +5,15 @@ import { RootState } from '../../redux/store';
 
 const AvatarProfile = () => {
     const { userDetails } = useSelector((state: RootState) => state.user);
-    const initial = userDetails?.[0]?.displayName
-        ?.trim()
-        ?.slice(0, 1)
-        ?.toUpperCase() || '?';
+    
+    const getInitial = () => {
+        const user = userDetails?.[0];
+        const name = user?.displayName || user?.email || '';
+        return name.trim().charAt(0).toUpperCase() || '?';
+    };
+
     return (
-        <Avatar alt='User' sx={{ bgcolor: deepOrange[500] }}>{initial}</Avatar>
+        <Avatar alt='User' sx={{ bgcolor: deepOrange[500] }}>{getInitial()}</Avatar>
     )
 }
 

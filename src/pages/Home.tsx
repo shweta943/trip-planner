@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import HeroSection from '../components/HeroSection';
 import CardsSlider from '../components/CardsSlider';
 import Testimonials from '../components/Testimonials';
-import getCardDestinations from '../config/Firebase/getCardDestinations';
+// import getCardDestinations from '../config/Firebase/getCardDestinations';
 import { useDispatch } from 'react-redux';
 import { setCardDestinationsFromFb } from "../redux/destinationSlice";
-import ImageGallery from '../components/ImageGallery';
+// import ImageGallery from '../components/ImageGallery';
 import PropTypes from 'prop-types';
 // import useAuth from '../hooks/useAuth';
 
@@ -19,8 +19,13 @@ const Home = ({ showSnackbar }: HomeProps) => {
 
     useEffect(() => {
         const fetchCardData = async () => {
-            const cardDestinations = await getCardDestinations();
-            dispatch(setCardDestinationsFromFb(cardDestinations));   
+            // const cardDestinations = await getCardDestinations();
+            // const mappedDestinations = cardDestinations.map(dest => ({
+            //     ...dest,
+            //     details: dest.details || '',
+            //     bestTimeToVisit: dest.bestTimeToVisit || ''
+            // }));
+            // dispatch(setCardDestinationsFromFb(mappedDestinations));   
         };
         fetchCardData();
     }, [dispatch]);
@@ -29,7 +34,7 @@ const Home = ({ showSnackbar }: HomeProps) => {
         <div>
             <HeroSection showSnackbar={showSnackbar} />
             <CardsSlider showSnackbar={showSnackbar} />
-            <ImageGallery />
+            {/* <ImageGallery /> */}
             <Testimonials />
         </div>
 

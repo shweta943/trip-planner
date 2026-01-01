@@ -21,7 +21,7 @@ const RightNavbar = ({ showSnackbar }: RightNavbarProps) => {
 
     return (
         <>
-            {!userDetails ? (
+            {!userDetails || userDetails.length === 0 ? (
                 <Button
                     variant="contained"
                     sx={{

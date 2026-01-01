@@ -3,7 +3,7 @@ import ClassicButton from '../UI/ClassicButton';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { updateBasicDetails } from '../../redux/formDataSlice';
 import { useMutation } from '@tanstack/react-query';
-import getGeminiResponse from '../../config/GeminiAI/geminiAi';
+// import getGeminiResponse from '../../config/GeminiAI/geminiAi';
 
 const SetBudget = () => {
   const dispatch = useAppDispatch();

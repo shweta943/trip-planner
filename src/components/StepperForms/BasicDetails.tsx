@@ -11,7 +11,7 @@ import {
 import { styled } from '@mui/material/styles';
 import Autocomplete from '../UI/Autocomplete';
 import { useQuery } from '@tanstack/react-query';
-import getGeminiResponse from '../../config/GeminiAI/geminiAi';
+// import getGeminiResponse from '../../config/GeminiAI/geminiAi';
 import { Chip, Stack, Tooltip } from '@mui/material';
 import FormStepLayout from './FormStepLayout';
 import { useDispatch, useSelector } from 'react-redux';

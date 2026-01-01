@@ -6,47 +6,41 @@ import { setUserDetails } from "../redux/userSlice";
 
 interface SanitizedUser {
   uid: string;
+  name?: string | null;
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
   emailVerified: boolean;
-  acessToken?: string;
 }
 
 const useAuth = () => {
-  const [user, setUser] = useState<SanitizedUser | string | null>(null);      // Current user object
-  const [loading, setLoading] = useState<boolean>(true); // Whether auth is still checking
-  const message = 'No user subscribed';
+  const [user, setUser] = useState<SanitizedUser | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    try {
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-
-        const sanitizedUser = currentUser
-          ? {
-            id: currentUser.uid,
-            uid: currentUser.uid,
-            name: currentUser.displayName,
-            email: currentUser.email,
-            displayName: currentUser.displayName,
-            photoURL: currentUser.photoURL,
-            emailVerified: currentUser.emailVerified,
-            acessToken: await currentUser.getIdToken(),
-          }
-          : null;
-
-        setUser(sanitizedUser || message);
-        dispatch(setUserDetails(sanitizedUser ? [sanitizedUser] : []));
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        setUser(null);
+        dispatch(setUserDetails([]));
         setLoading(false);
-      });
+        return;
+      }
+      const sanitizedUser = {
+        uid: currentUser.uid,
+        name: currentUser.displayName,
+        email: currentUser.email,
+        displayName: currentUser.displayName,
+        photoURL: currentUser.photoURL,
+        emailVerified: currentUser.emailVerified,
+      }
+      setUser(sanitizedUser);
+      dispatch(setUserDetails([sanitizedUser]));
+      setLoading(false);
+    });
 
-      return () => unsubscribe(); // Cleanup
-    } catch (error) {
-      console.error('Error in user:', error);
-    }
-
-  }, []);
+    return () => unsubscribe(); // Cleanup
+  }, [dispatch]);
 
   // Return user details and user auth loading state
   return { user, loading };

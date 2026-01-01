@@ -1,6 +1,6 @@
 import { Box, Typography, Paper, Avatar, useMediaQuery } from '@mui/material';
 import { useState, useEffect } from 'react';
-import getUnspashImages from '../config/Unsplash/getUnsplashImage';
+// import getUnspashImages from '../config/Unsplash/getUnsplashImage';
 
 const testimonials = [
   {
@@ -40,20 +40,20 @@ const Testimonials = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-    const getDestinationImages = async () => {
-      const newArray: Review[] = await Promise.all(
-        testimonials.map(async (r) => {
-          const image = await getUnspashImages(r.destination, 1);
-          return {
-            ...r,
-            image: image[0]?.urls?.regular,
-          };
-        })
-      );
-      setReviews(newArray);
-    };
+    // const getDestinationImages = async () => {
+    //   const newArray: Review[] = await Promise.all(
+    //     testimonials.map(async (r) => {
+    //       const image = await getUnspashImages(r.destination, 1);
+    //       return {
+    //         ...r,
+    //         image: image[0]?.urls?.regular,
+    //       };
+    //     })
+    //   );
+    //   setReviews(newArray);
+    // };
 
-    getDestinationImages();
+    // getDestinationImages();
   }, []);
 
   return (
