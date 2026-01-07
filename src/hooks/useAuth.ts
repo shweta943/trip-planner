@@ -1,3 +1,9 @@
+/**
+ * Custom hook to manage user authentication state using Firebase.
+ * It listens for authentication state changes and provides sanitized user details.
+ * It also updates the Redux store with the current user details.
+ */
+
 import { useEffect, useState } from "react";
 import { auth } from "../config/Firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";

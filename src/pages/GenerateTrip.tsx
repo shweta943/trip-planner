@@ -1,5 +1,5 @@
 import { ComponentType } from "react";
-// import BasicDetails from "../components/StepperForms/BasicDetails";
+import BasicDetails from "../components/StepperForms/BasicDetails";
 import InterestAndVibes from "../components/StepperForms/InterestAndVibes";
 // import SetBudget from "../components/StepperForms/SetBudget";
 import StepperWrapper from "../components/UI/StepperWrapper";
@@ -15,10 +15,10 @@ const GenerateTrip = () => {
 
   //- Control steps from here
   const steps: Steps[] = [
-    // {
-    //   label: "Tell Us About Your Trip",
-    //   Component: BasicDetails
-    // },
+    {
+      label: "Tell Us About Your Trip",
+      Component: BasicDetails
+    },
     {
       label: "Choose Your Interests & Vibes",
       Component: InterestAndVibes,

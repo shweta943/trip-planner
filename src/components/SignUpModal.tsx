@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { Backdrop, Modal, Fade, Box, Tab, Tabs } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { auth } from '../config/Firebase/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { signUp, signIn } from '../config/Firebase/auth';
 import travelImage from '../assets/Images/travel-2.avif';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -85,7 +85,7 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
         const loginPassword = loginPasswordRef.current!.value;
 
         try {
-            await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+            await signIn(loginEmail, loginPassword);
             onFormClose();
         } catch (error) {
             console.error(error);
@@ -133,7 +133,7 @@ const SignUpModal = ({ open, onFormClose, showSnackbar }) => {
         }
 
         try {
-            await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
+            await signUp(signUpEmail, signUpPassword);
             showSnackbar('User created successfully!', 'success');
             onFormClose();
 
