@@ -8,7 +8,8 @@ import Typography from '@mui/material/Typography';
 import CardActionArea from '@mui/material/CardActionArea';
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { CardDestination } from '../redux/destinationSlice';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from "../config/backendAPI/apiClient";
 
 type SnackbarSeverity = 'success' | 'error' | 'info' | 'warning';
 
@@ -18,7 +19,6 @@ interface CardsSliderProps {
 
 const CardsSlider = ({ showSnackbar }: CardsSliderProps
 ) => {
-  const { cardDestinationsFromFb } = useSelector((state: RootState) => state.destinations) as { cardDestinationsFromFb: CardDestination[] };
   const { userDetails } = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
 
@@ -41,6 +41,14 @@ const CardsSlider = ({ showSnackbar }: CardsSliderProps
     ],
   };
 
+  const { data: cardsDest, isLoading, error } = useQuery({
+    queryKey: ['top-destinations'],
+    queryFn: async () => {
+      const response = await apiClient('/api/fs/top-destinations');
+      return response;
+    }
+  })
+
   return (
     <Box className="w-full px-4 sm:px-8 lg:px-16 py-10">
 
@@ -49,16 +57,16 @@ const CardsSlider = ({ showSnackbar }: CardsSliderProps
       </h2>
 
       <Slider {...settings}>
-        {cardDestinationsFromFb.map((item, index) => (
+        {cardsDest?.map((item, index) => (
 
           <Card key={index} className="rounded-2xl shadow-lg shadow-cyan-500/50 flex flex-col card-3d relative group py-2 m-3" style={{ minHeight: '350px' }}>
             <CardActionArea>
-              <CardMedia
+              {/* <CardMedia
                 component="img"
                 image={item.image[0].url}
                 alt={item.image[0].alt}
                 className="h-56 object-cover"
-              />
+              /> */}
               <CardContent className="flex-grow flex flex-col justify-between items-start">
                 <Typography gutterBottom variant="h6" component="div">
                   {item.title}
@@ -83,7 +91,6 @@ const CardsSlider = ({ showSnackbar }: CardsSliderProps
               </CardContent>
             </CardActionArea>
 
-            {/* Hover Overlay with Button */}
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <button
                 className="bg-white text-black px-4 py-2 rounded-full font-semibold shadow hover:bg-gray-200 transition-transform transform group-hover:scale-105"

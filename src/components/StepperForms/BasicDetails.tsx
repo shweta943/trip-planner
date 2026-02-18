@@ -46,14 +46,13 @@ const BasicDetails = () => {
     const basicDetails = useSelector((state: RootState) => state.stepperFormData?.formData?.basicDetails);
 
     // Fetch popular destinations from backend API
-    const { data: destinations, isLoading, error } = useQuery({
+    const { data: dest, isLoading, error } = useQuery({
         queryKey: ['popular-destinations'],
         queryFn: async () => {
             const response = await apiClient('/api/ai/popular-destinations');
-            return response.destinations.data.destinations;
+            return response.destinations;
         },
     });
-    console.log("Popular destinations fetched:", destinations);
 
     const budgetPrompt = `Based on the following trip details, estimate a total budget in INR. Respond ONLY with a number, without any currency symbol, explanation, or text.
 
@@ -104,7 +103,7 @@ const BasicDetails = () => {
                         mt: 2,
                         mb: 2
                     }}>
-                        {destinations?.map((dest: string, index: number) => (
+                        {dest?.destinations?.map((dest: string, index: number) => (
                             <Tooltip title="Popular destination suggested by AI" arrow key={index}>
                                 <Chip label={dest} size="small" onClick={() => onClickChip(dest)} sx={{
                                     background: 'linear-gradient(to right, #fce3ec, #ffe8d6)',
@@ -114,7 +113,7 @@ const BasicDetails = () => {
                                 />
                             </Tooltip>
                         ))}
-                        {destinations?.length === 0 && <Chip label="No suggestions found" disabled />}
+                        {dest?.destinations?.length === 0 && <Chip label="No suggestions found" disabled />}
                     </Stack>
                 </Box>
 

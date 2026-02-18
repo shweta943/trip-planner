@@ -19,5 +19,6 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
     if (!responseFromFetch.ok) {
         throw new Error(`API request failed with status ${responseFromFetch.status}`);
     }
-    return responseFromFetch.json() as Promise<any>;
+    const data = await responseFromFetch.json()
+    return data
 }
