@@ -7,6 +7,8 @@ import { useDispatch } from 'react-redux';
 import { setCardDestinationsFromFb } from "../redux/destinationSlice";
 // import ImageGallery from '../components/ImageGallery';
 import PropTypes from 'prop-types';
+import HowItWorks from '../components/HowItWorks';
+import Features from '../components/Features';
 // import useAuth from '../hooks/useAuth';
 
 interface HomeProps {
@@ -33,8 +35,9 @@ const Home = ({ showSnackbar }: HomeProps) => {
     return (
         <div>
             <HeroSection showSnackbar={showSnackbar} />
-            <CardsSlider showSnackbar={showSnackbar} />
-            {/* <ImageGallery /> */}
+            <CardsSlider showSnackbar={showSnackbar}/>
+            <HowItWorks />
+            <Features />
             <Testimonials />
         </div>
 

@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import destinationReducer from "./destinationSlice";
 import userReducer from "./userSlice";
-import stepperFormReducer from './formDataSlice';
+import stepperFormReducer from './stepperFormSlice';
 
 export const store = configureStore({
     reducer: {

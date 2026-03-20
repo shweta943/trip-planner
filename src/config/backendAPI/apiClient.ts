@@ -20,5 +20,6 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
         throw new Error(`API request failed with status ${responseFromFetch.status}`);
     }
     const data = await responseFromFetch.json()
+    console.log('data', data)
     return data
 }

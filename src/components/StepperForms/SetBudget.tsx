@@ -1,13 +1,15 @@
 import { Box, Typography, Slider, TextField, Divider } from "@mui/material";
-import ClassicButton from '../UI/ClassicButton';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { updateBasicDetails } from '../../redux/formDataSlice';
-import { useMutation } from '@tanstack/react-query';
+import ClassicButton from "../UI/ClassicButton";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { updateBasicDetails } from "../../redux/stepperFormSlice";
+import { useMutation } from "@tanstack/react-query";
 // import getGeminiResponse from '../../config/GeminiAI/geminiAi';
 
 const SetBudget = () => {
   const dispatch = useAppDispatch();
-  const basicDetails = useAppSelector((state) => state.stepperFormData?.formData?.basicDetails);
+  const basicDetails = useAppSelector(
+    (state) => state.stepperFormData?.formData?.basicDetails,
+  );
 
   const budgetPrompt = `Based on the following trip details, estimate a total budget in INR. Respond ONLY with a number, without any currency symbol, explanation, or text.
 
@@ -21,15 +23,16 @@ const SetBudget = () => {
     Output format:
     Only a number like 32000`;
 
-  const { mutate: fetchSuggestedBudget, isPending: isBudgetPending } = useMutation<string>({
-    mutationFn: () => getGeminiResponse(budgetPrompt),
-    onSuccess: (budgetData: string) => {
-      const budgetNumber = Number(budgetData);
-      if (budgetNumber >= 5000 && budgetNumber <= 200000) {
-        handleChange('budget', budgetNumber);
-      }
-    },
-  });
+  const { mutate: fetchSuggestedBudget, isPending: isBudgetPending } =
+    useMutation<string>({
+      mutationFn: () => getGeminiResponse(budgetPrompt),
+      onSuccess: (budgetData: string) => {
+        const budgetNumber = Number(budgetData);
+        if (budgetNumber >= 5000 && budgetNumber <= 200000) {
+          handleChange("budget", budgetNumber);
+        }
+      },
+    });
 
   const handleChange = (field: string, value: string | number) => {
     dispatch(updateBasicDetails({ [field]: value }));
