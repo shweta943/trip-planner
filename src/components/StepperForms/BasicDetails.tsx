@@ -1,207 +1,254 @@
-import { useState, useEffect } from "react";
 import {
-  Box,
+  Grid,
   TextField,
-  Grid2,
   MenuItem,
-  Divider,
   Typography,
-  // Autocomplete
+  Paper,
+  Box,
+  Chip,
+  Tooltip,
+  Autocomplete,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import Autocomplete from "../UI/Autocomplete";
-import { useQuery } from "@tanstack/react-query";
-// import getGeminiResponse from '../../config/GeminiAI/geminiAi';
-import { Chip, Stack, Tooltip } from "@mui/material";
-import FormStepLayout from "./FormStepLayout";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { updateBasicDetails } from "../../redux/stepperFormSlice";
-import { useMutation } from "@tanstack/react-query";
 import { RootState } from "../../redux/store";
+import { updateBasicDetails } from "../../redux/stepperFormSlice";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../../config/backendAPI/apiClient";
+import { useDestinationAutocomplete } from "../../hooks/useDestinationAutocomplete";
+import { useDebounce } from "../../hooks/useDebounce";
 
-const CssTextField = styled(TextField)({
-  "& label.Mui-focused": {
-    color: "#A0AAB4",
-  },
-  "& .MuiInput-underline:after": {
-    borderBottomColor: "#B2BAC2",
-  },
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": {
-      borderColor: "#E0E3E7",
-    },
-    "&:hover fieldset": {
-      borderColor: "#B2BAC2",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#6F7E8C",
-    },
-  },
-});
-
-const BasicDetails = () => {
-  const [selectedDest, setSelectedDest] = useState<string>("");
+const BasicDetails = ({ errors }: any) => {
   const dispatch = useDispatch();
-  const basicDetails = useSelector(
-    (state: RootState) => state.stepperFormData?.basicDetails,
+
+  const data = useSelector(
+    (state: RootState) => state.stepperFormData.basicDetails,
   );
 
-  // Fetch popular destinations from backend API
-  const {
-    data: dest,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["popular-destinations"],
-    queryFn: async () => {
-      const response = await apiClient("/api/ai/popular-destinations");
-      return response.destinations;
-    },
-  });
-
-  const budgetPrompt = `Based on the following trip details, estimate a total budget in INR. Respond ONLY with a number, without any currency symbol, explanation, or text.
-
-                Trip Details:
-                - Destination: ${basicDetails.destination || "Unknown"}
-                - Start Date: ${basicDetails.startDate}
-                - End Date: ${basicDetails.endDate}
-                - Travelers: ${basicDetails.travelers}
-                - Trip Type: ${basicDetails.tripType}
-
-                Output format:
-                Only a number like 32000;`;
-
-  // For budget setting button
-  // const { mutate: fetchSuggestedBudget, isPending: isBudgetPending } = useMutation<string>({
-  //     mutationFn: () => getGeminiResponse(budgetPrompt),
-  //     onSuccess: (budgetData) => {
-  //         // Example: update Redux store with suggested budget
-  //         // const suggestedBudget = data?.budget; // or extract based on your API response
-  //         // if (budgetData) {
-  //         // dispatch(updateBasicDetails({ budget: suggestedBudget }));
-  //         // Optionally show a toast/snackbar
-  //         handleChange('budget', budgetData);
-  //     },
-  // });
-
-  const handleChange = (field: string, value: string | number) => {
+  const handleChange = (field: string, value: any) => {
     dispatch(updateBasicDetails({ [field]: value }));
   };
 
-  const onClickChip = (destination: string) => {
-    setSelectedDest(destination);
-  };
-  const handleSuggestBudgetBtn = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    // fetchSuggestedBudget()
-  };
+  /* =======================
+     GEOAPIFY AUTOCOMPLETE
+  ======================= */
+  const { options, fetchSuggestions, loading } = useDestinationAutocomplete();
+
+  const debouncedDestination = useDebounce(data.destination);
+
+  useEffect(() => {
+    if (debouncedDestination) {
+      fetchSuggestions(debouncedDestination);
+    }
+  }, [debouncedDestination]);
+
+  /* =======================
+     AI POPULAR DESTINATIONS
+  ======================= */
+  const { data: destinations = [] } = useQuery({
+    queryKey: ["popular-destinations"],
+    queryFn: () => apiClient("/api/ai/popular-destinations"),
+    staleTime: 1000 * 60 * 60 * 24, // 24h
+  });
 
   return (
-    <FormStepLayout title="Tell us about your Trip">
-      <Box component="form" noValidate>
-        {/* Destination */}
-        <Box sx={{ mb: 4 }}>
-          <Autocomplete />
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{
-              justifyContent: "center",
-              alignItems: "center",
-              mt: 2,
-              mb: 2,
-            }}
-          >
-            {dest?.destinations?.map((dest: string, index: number) => (
-              <Tooltip
-                title="Popular destination suggested by AI"
-                arrow
-                key={index}
-              >
-                <Chip
-                  label={dest}
-                  size="small"
-                  onClick={() => onClickChip(dest)}
-                  sx={{
-                    background: "linear-gradient(to right, #fce3ec, #ffe8d6)",
-                    color: "#d6336c",
-                    fontWeight: 500,
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          p: 5,
+          maxWidth: 720,
+          mx: "auto",
+          borderRadius: "20px",
+          background: "linear-gradient(145deg, #fffaf5, #ffffff)",
+          boxShadow: "0 12px 40px rgba(255,122,0,0.12)",
+          border: "1px solid rgba(255,122,0,0.1)",
+        }}
+      >
+        {/* Heading */}
+        <Box textAlign="center" mb={4}>
+          <Typography variant="h4" fontWeight={700}>
+            Plan Your Trip ✈️
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary">
+            Tell us your travel basics to get started
+          </Typography>
+        </Box>
+
+        <Grid container spacing={3}>
+          {/* DESTINATION */}
+          <Grid item xs={12}>
+            <Autocomplete
+              freeSolo
+              options={options}
+              loading={loading}
+              value={data.destination}
+              onInputChange={(e, value) => handleChange("destination", value)}
+              onChange={(e, value) => handleChange("destination", value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Destination"
+                  placeholder="Search destinations..."
+                  error={!!errors?.destination}
+                  helperText={errors?.destination?._errors?.[0]}
+                  sx={inputStyle}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <>
+                        <LocationOnIcon sx={{ mr: 1, color: "#FF7A00" }} />
+                        {params.InputProps.startAdornment}
+                      </>
+                    ),
                   }}
                 />
-              </Tooltip>
-            ))}
-            {dest?.destinations?.length === 0 && (
-              <Chip label="No suggestions found" disabled />
-            )}
-          </Stack>
-        </Box>
+              )}
+            />
+          </Grid>
 
-        {/* Dates */}
-        <Box sx={{ mb: 4 }}>
-          <Grid2 container spacing={2} mb={2}>
-            <Grid2 size={{ xs: 12, sm: 6 }}>
-              <CssTextField
-                fullWidth
-                type="date"
-                label="Start Date"
-                name="startDate"
-                value={basicDetails?.startDate}
-                onChange={(event) =>
-                  handleChange("startDate", event.target.value)
-                }
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid2>
-            <Grid2 size={{ xs: 12, sm: 6 }}>
-              <CssTextField
-                fullWidth
-                type="date"
-                label="End Date"
-                name="endDate"
-                value={basicDetails?.endDate}
-                onChange={(event) =>
-                  handleChange("endDate", event.target.value)
-                }
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid2>
-          </Grid2>
-        </Box>
+          {/* AI BADGES */}
+          <Grid item xs={12}>
+            <Box>
+              <Box display="flex" alignItems="center" mb={1}>
+                <Typography variant="body2" fontWeight={500}>
+                  Popular Picks
+                </Typography>
 
-        {/* Travelers */}
-        <Box sx={{ mb: 4 }}>
-          <CssTextField
-            fullWidth
-            type="number"
-            name="travelers"
-            label="Number of Travelers"
-            value={basicDetails?.travelers}
-            onChange={(event) => handleChange("travelers", event.target.value)}
-          />
-        </Box>
+                <Tooltip title="AI generated suggestions">
+                  <AutoAwesomeIcon
+                    sx={{
+                      ml: 1,
+                      fontSize: 16,
+                      color: "#FF7A00",
+                    }}
+                  />
+                </Tooltip>
+              </Box>
 
-        {/* Trip Type */}
-        <Box sx={{ mb: 4 }}>
-          <CssTextField
-            select
-            fullWidth
-            name="tripType"
-            label="Trip Type"
-            value={basicDetails?.tripType}
-            onChange={(event) => handleChange("tripType", event.target.value)}
-          >
-            <MenuItem value="solo">Solo</MenuItem>
-            <MenuItem value="couple">Couple</MenuItem>
-            <MenuItem value="family">Family</MenuItem>
-            <MenuItem value="friends">Friends</MenuItem>
-          </CssTextField>
-        </Box>
-      </Box>
-    </FormStepLayout>
+              <Box display="flex" flexWrap="wrap" gap={1}>
+                {destinations?.destinations?.map((place: string) => (
+                  <motion.div
+                    key={place}
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Chip
+                      label={place}
+                      onClick={() => handleChange("destination", place)}
+                      sx={{
+                        borderRadius: "10px",
+                        background:
+                          data.destination === place
+                            ? "#FF7A00"
+                            : "linear-gradient(135deg, #FF7A00, #FFB266)",
+                        color: "#fff",
+                        fontWeight: 500,
+
+                        "&:hover": {
+                          boxShadow: "0 6px 16px rgba(255,122,0,0.4)",
+                        },
+                      }}
+                    />
+                  </motion.div>
+                ))}
+              </Box>
+            </Box>
+          </Grid>
+
+          {/* DATES */}
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Start Date"
+              InputLabelProps={{ shrink: true }}
+              value={data.startDate}
+              onChange={(e) => handleChange("startDate", e.target.value)}
+              error={!!errors?.startDate}
+              helperText={errors?.startDate?._errors?.[0]}
+              sx={inputStyle}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="End Date"
+              InputLabelProps={{ shrink: true }}
+              value={data.endDate}
+              onChange={(e) => handleChange("endDate", e.target.value)}
+              error={!!errors?.endDate}
+              helperText={errors?.endDate?._errors?.[0]}
+              sx={inputStyle}
+            />
+          </Grid>
+
+          {/* TRAVELERS */}
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Travelers"
+              value={data.travelers}
+              onChange={(e) =>
+                handleChange("travelers", Number(e.target.value))
+              }
+              sx={inputStyle}
+            />
+          </Grid>
+
+          {/* TRIP TYPE */}
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              select
+              label="Trip Type"
+              value={data.tripType}
+              onChange={(e) => handleChange("tripType", e.target.value)}
+              sx={inputStyle}
+            >
+              <MenuItem value="solo">Solo</MenuItem>
+              <MenuItem value="couple">Couple</MenuItem>
+              <MenuItem value="family">Family</MenuItem>
+              <MenuItem value="group">Group</MenuItem>
+            </TextField>
+          </Grid>
+        </Grid>
+      </Paper>
+    </motion.div>
   );
+};
+
+/* 🎨 INPUT STYLING */
+const inputStyle = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px",
+    backgroundColor: "#fff",
+    transition: "all 0.25s ease",
+
+    "&:hover": {
+      boxShadow: "0 4px 14px rgba(255,122,0,0.2)",
+    },
+
+    "&.Mui-focused": {
+      boxShadow: "0 6px 18px rgba(255,122,0,0.3)",
+      transform: "scale(1.01)",
+    },
+  },
+
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: "#FF7A00",
+  },
 };
 
 export default BasicDetails;

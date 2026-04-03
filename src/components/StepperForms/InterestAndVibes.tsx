@@ -1,96 +1,195 @@
-import { useState } from "react";
 import {
   Box,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  Radio,
-  RadioGroup,
-  FormControl,
-  FormLabel,
+  Typography,
+  Paper,
+  Chip
 } from "@mui/material";
-import FormStepLayout from './FormStepLayout';
+import { motion } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { updatePreferences } from "../../redux/stepperFormSlice";
 
 const interestsList = [
-  "Beach", "Trekking", "Food & Local Cuisine", "Historical Places", "Spirituality", "Nature",
-] as const;
+  "Adventure",
+  "Food",
+  "Nature",
+  "Culture",
+  "Shopping",
+  "Nightlife",
+  "Spiritual",
+  "Beach"
+];
 
-const vibesList = [
-  "Adventurous", "Romantic", "Peaceful", "Family-friendly"
-] as const;
+const vibeList = ["Relaxed", "Adventurous", "Luxury"];
 
-interface InterestAndVibesFormProps {
-  interests?: string[];
-  vibe?: string;
-  topPriorities?: string[];
-}
+const InterestAndVibes = ({ errors }: any) => {
+  const dispatch = useDispatch();
 
-interface InterestAndVibesFormProps {
-  onNext?: () => void;
-}
+  const data = useSelector(
+    (state: RootState) => state.stepperFormData.preferences
+  );
 
-const InterestAndVibesForm = ({ onNext }: InterestAndVibesFormProps) => {
-  const [formData, setFormData] = useState({
-    interests: [] as string[],
-    vibe: "",
-    topPriorities: [] as string[],
-  });
+  /* =======================
+     INTEREST TOGGLE
+  ======================= */
+  const toggleInterest = (item: string) => {
+    const lower = item.toLowerCase();
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, key: "interests" | "topPriorities") => {
-    const { checked, value } = e.target;
-    setFormData((prev) => {
-      const current = new Set(prev[key]);
-      checked ? current.add(value) : current.delete(value);
-      return { ...prev, [key]: Array.from(current) };
-    });
+    const updated = data.interests.includes(lower)
+      ? data.interests.filter((i) => i !== lower)
+      : [...data.interests, lower];
+
+    dispatch(updatePreferences({ interests: updated }));
   };
 
-  const handleVibeChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, vibe: e.currentTarget.value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // You can dispatch to Redux here
-    console.log("Submitted Interests & Vibes:", formData);
-    if (onNext) {
-      onNext(); // move to next step
-    }
+  /* =======================
+     VIBE SELECT
+  ======================= */
+  const selectVibe = (vibe: string) => {
+    dispatch(updatePreferences({ vibe: vibe.toLowerCase() }));
   };
 
   return (
-    <FormStepLayout title='Let Your Interests Guide the Way'>
-      <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        <FormControl component="fieldset">
-          <FormLabel>What are your interests?</FormLabel>
-          <FormGroup>
-            {interestsList.map((item) => (
-              <FormControlLabel
-                key={item}
-                control={
-                  <Checkbox
-                    value={item}
-                    checked={formData.interests.includes(item)}
-                    onChange={(e) => handleCheckboxChange(e, "interests")}
-                  />
-                }
-                label={item}
-              />
-            ))}
-          </FormGroup>
-        </FormControl>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          p: 5,
+          maxWidth: 720,
+          mx: "auto",
+          borderRadius: "20px",
+          background: "linear-gradient(145deg, #fffaf5, #ffffff)",
+          boxShadow: "0 12px 40px rgba(255,122,0,0.12)",
+          border: "1px solid rgba(255,122,0,0.1)"
+        }}
+      >
+        {/* Heading */}
+        <Box textAlign="center" mb={4}>
+          <Typography variant="h4" fontWeight={700}>
+            Your Travel Style 🎯
+          </Typography>
 
-        <FormControl component="fieldset">
-          <FormLabel>Wanna Pick a vibe?</FormLabel>
-          <RadioGroup value={formData.vibe} onChange={handleVibeChange}>
-            {vibesList.map((item) => (
-              <FormControlLabel key={item} value={item} control={<Radio />} label={item} />
-            ))}
-          </RadioGroup>
-        </FormControl>
-      </Box>
-    </FormStepLayout>
+          <Typography variant="body2" color="text.secondary">
+            Tell us what kind of experience you’re looking for
+          </Typography>
+        </Box>
+
+        {/* =======================
+            INTERESTS
+        ======================= */}
+        <Box mb={4}>
+          <Typography variant="subtitle1" fontWeight={600} mb={2}>
+            What interests you?
+          </Typography>
+
+          <Box display="flex" flexWrap="wrap" gap={1}>
+            {interestsList.map((item) => {
+              const lower = item.toLowerCase();
+              const isSelected = data.interests.includes(lower);
+
+              return (
+                <motion.div
+                  key={item}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Chip
+                    label={item}
+                    onClick={() => toggleInterest(item)}
+                    sx={{
+                      borderRadius: "10px",
+                      fontWeight: 500,
+                      cursor: "pointer",
+
+                      background: isSelected
+                        ? "#FF7A00"
+                        : "#fff",
+
+                      color: isSelected ? "#fff" : "#333",
+
+                      border: isSelected
+                        ? "none"
+                        : "1px solid #ddd",
+
+                      "&:hover": {
+                        boxShadow:
+                          "0 6px 16px rgba(255,122,0,0.3)"
+                      }
+                    }}
+                  />
+                </motion.div>
+              );
+            })}
+          </Box>
+
+          {errors?.interests && (
+            <Typography color="error" mt={1} fontSize={13}>
+              {errors.interests._errors[0]}
+            </Typography>
+          )}
+        </Box>
+
+        {/* =======================
+            VIBE
+        ======================= */}
+        <Box>
+          <Typography variant="subtitle1" fontWeight={600} mb={2}>
+            Choose your vibe
+          </Typography>
+
+          <Box display="flex" gap={2} flexWrap="wrap">
+            {vibeList.map((item) => {
+              const lower = item.toLowerCase();
+              const isSelected = data.vibe === lower;
+
+              return (
+                <motion.div
+                  key={item}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Chip
+                    label={item}
+                    onClick={() => selectVibe(item)}
+                    sx={{
+                      px: 2,
+                      borderRadius: "12px",
+                      fontWeight: 600,
+
+                      background: isSelected
+                        ? "linear-gradient(135deg, #FF7A00, #FFB266)"
+                        : "#fff",
+
+                      color: isSelected ? "#fff" : "#333",
+
+                      border: isSelected
+                        ? "none"
+                        : "1px solid #ddd",
+
+                      "&:hover": {
+                        boxShadow:
+                          "0 6px 16px rgba(255,122,0,0.3)"
+                      }
+                    }}
+                  />
+                </motion.div>
+              );
+            })}
+          </Box>
+
+          {errors?.vibe && (
+            <Typography color="error" mt={1} fontSize={13}>
+              {errors.vibe._errors[0]}
+            </Typography>
+          )}
+        </Box>
+      </Paper>
+    </motion.div>
   );
 };
 
-export default InterestAndVibesForm;
+export default InterestAndVibes;

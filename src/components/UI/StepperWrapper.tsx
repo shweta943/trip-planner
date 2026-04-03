@@ -1,187 +1,212 @@
-import Box from '@mui/material/Box';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 
-interface StepComponet {
-    label: string;
-    Component: React.ComponentType<{
-        onNext: () => void;
-        onBack: () => void;
-        onSkip: () => void;
-        isLastStep: boolean;
-        isFirstStep: boolean;
-        onValidationChange?: (isValid: boolean) => void;
-    }>;
-    onValidationChange?: (isValid: boolean) => void;
+// import your schemas
+import { basicDetailsSchema } from "../../schemas/basicDetails..schema";
+import { preferencesSchema } from "../../schemas/preferences.schema";
+import { apiClient } from "../../config/backendAPI/apiClient";
+
+// import components
+import BasicDetails from "../StepperForms/BasicDetails";
+import InterestAndVibes from "../StepperForms/InterestAndVibes";
+import SetBudget from "../StepperForms/SetBudget";
+import ReviewDetails from "../StepperForms/ReviewDetails";
+
+export interface CreateTripPayload {
+  destination: string;
+  startDate: string;
+  endDate: string;
+  travelers: number;
+  tripType: "solo" | "couple" | "family" | "group";
+  budget?: number;
+  interests: string[];
+  vibe: string;
 }
 
-interface StepperWrapperProps {
-    stepsComponents: StepComponet[];
-}
+const createTrip = (payload: CreateTripPayload) => {
+  return apiClient("/api/trips", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+};
+const StepperWrapper = () => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [errors, setErrors] = useState<any>(null);
 
-const StepperWrapper = ({ stepsComponents }: StepperWrapperProps) => {
-    const [activeStep, setActiveStep] = useState<number>(0);
-    const [skipped, setSkipped] = useState(new Set<number>());
-    const [direction, setDirection] = useState<number>(0);
+  const stepperForm = useSelector((state: RootState) => state.stepperFormData);
 
-    const isStepOptional = (step: number): boolean => {
-        return step === 1;
+  const steps = [
+    {
+      label: "Basic Details",
+      component: <BasicDetails errors={errors} />,
+      schema: basicDetailsSchema,
+    },
+    {
+      label: "Preferences",
+      component: <InterestAndVibes errors={errors} />,
+      schema: preferencesSchema,
+    },
+    {
+      label: "Set Budget",
+      component: <SetBudget />,
+      schema: null,
+    },
+    {
+      label: "Review",
+      component: <ReviewDetails />,
+      schema: null,
+    },
+  ];
+
+  /* =======================
+     GET STEP DATA
+  ======================= */
+
+  const getStepData = () => {
+    switch (activeStep) {
+      case 0:
+        return stepperForm.basicDetails;
+      case 1:
+        return stepperForm.preferences;
+      default:
+        return {};
+    }
+  };
+
+  /* =======================
+     VALIDATION
+  ======================= */
+
+  const validateStep = () => {
+    const currentStep = steps[activeStep];
+
+    if (!currentStep.schema) return true;
+
+    const result = currentStep.schema.safeParse(getStepData());
+
+    if (!result.success) {
+      setErrors(result.error.format());
+      return false;
+    }
+
+    setErrors(null);
+    return true;
+  };
+
+  /* =======================
+     API MUTATION
+  ======================= */
+
+  const mutation = useMutation({
+    mutationFn: createTrip,
+  });
+
+  /* =======================
+     BUILD PAYLOAD
+  ======================= */
+
+  const buildPayload = () => {
+    return {
+      ...stepperForm.basicDetails,
+      ...stepperForm.preferences,
     };
+  };
 
-    const isStepSkipped = (step: number): boolean => {
-        return skipped.has(step);
-    };
+  /* =======================
+     NAVIGATION
+  ======================= */
 
-    const handleNext = () => {
-        let newSkipped = skipped;
-        if (isStepSkipped(activeStep)) {
-            newSkipped = new Set(newSkipped.values());
-            newSkipped.delete(activeStep);
-        }
+  const handleNext = () => {
+    const isValid = validateStep();
 
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        setSkipped(newSkipped);
-        setDirection(1);
-    };
+    if (!isValid) return;
 
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-        setDirection(-1);
-    };
+    if (activeStep === steps.length - 1) {
+      handleSubmit();
+    } else {
+      setActiveStep((prev) => prev + 1);
+    }
+  };
 
-    const handleSkip = () => {
-        if (!isStepOptional(activeStep)) {
-            // You probably want to guard against something like this,
-            // it should never occur unless someone's actively trying to break something.
-            throw new Error("You can't skip a step that isn't optional.");
-        }
+  const handleBack = () => {
+    setActiveStep((prev) => prev - 1);
+  };
 
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        setSkipped((prevSkipped) => {
-            const newSkipped = new Set(prevSkipped.values());
-            newSkipped.add(activeStep);
-            return newSkipped;
-        });
-    };
+  /* =======================
+     SUBMIT
+  ======================= */
 
-    const handleReset = () => {
-        setActiveStep(0);
-        setSkipped(new Set());
-    };
-    
-    const variants = {
-        enter: (direction: number) => ({
-            x: direction > 0 ? 300 : -300,
-            opacity: 0,
-        }),
-        center: {
-            x: 0,
-            opacity: 1,
-        },
-        exit: (direction: number) => ({
-            x: direction < 0 ? 300 : -300,
-            opacity: 0,
-        }),
-    } as const;
+  const handleSubmit = () => {
+    const payload = buildPayload();
 
-    const steps = stepsComponents.map((step) => step.label);
-    const { Component, onValidationChange } = stepsComponents[activeStep];
+    mutation.mutate(payload, {
+      onSuccess: (data: any) => {
+        console.log("Trip Created:", data);
+        // TODO: navigate(`/trip/${data.tripId}`)
+      },
+      onError: (error) => {
+        console.error("Error:", error);
+      },
+    });
+  };
 
-    return (
-        <Box sx={{ width: '100%', overflowX: 'hidden', position: 'relative' }}>
-            <Stepper activeStep={activeStep}>
-                {steps.map((label, index) => {
-                    const stepProps: Partial<React.ComponentProps<typeof Step>> = {};
-                    const labelProps: Partial<React.ComponentProps<typeof StepLabel>> = {};
+  /* =======================
+     BUTTON STATE
+  ======================= */
 
-                    if (isStepOptional(index)) {
-                        labelProps.optional = (
-                            <Typography variant="caption">Optional</Typography>
-                        );
-                    }
-                    if (isStepSkipped(index)) {
-                        stepProps.completed = false;
-                    }
+  const isStepValid = useMemo(() => {
+    const currentStep = steps[activeStep];
 
-                    return (
-                        <Step key={label} {...stepProps}>
-                            <StepLabel {...labelProps}>{label}</StepLabel>
-                        </Step>
-                    );
-                })}
-            </Stepper>
-            <AnimatePresence mode="wait" custom={direction}>
-                {activeStep === steps.length ? (
-                    <motion.div
-                        key={activeStep}
-                        custom={direction}
-                        variants={variants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0.4 }}
-                    >
-                        <Typography sx={{ mt: 2, mb: 1 }}>
-                            All steps completed - you&apos;re finished
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                            <Box sx={{ flex: '1 1 auto' }} />
-                            <Button onClick={handleReset}>Reset</Button>
-                        </Box>
+    if (!currentStep.schema) return true;
 
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        key={activeStep}
-                        custom={direction}
-                        variants={variants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0.4 }}
-                    >
-                        <Box sx={{ mt: 4 }}>
-                            {Component && (
-                                <Component
-                                    onNext={handleNext}
-                                    onBack={handleBack}
-                                    onSkip={handleSkip}
-                                    isLastStep={activeStep === steps.length - 1}
-                                    isFirstStep={activeStep === 0}
-                                    onValidationChange={onValidationChange}
-                                />
-                            )}
-                        </Box>
+    return currentStep.schema.safeParse(getStepData()).success;
+  }, [activeStep, stepperForm]);
 
-                        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                            <Button
-                                color="inherit"
-                                disabled={activeStep === 0}
-                                onClick={handleBack}
-                                sx={{ mr: 1 }}
-                            >
-                                Back
-                            </Button>
-                            <Box sx={{ flex: '1 1 auto' }} />
-                            {isStepOptional(activeStep) && (
-                                <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                                    Skip
-                                </Button>
-                            )}
-                            <Button onClick={handleNext} sx={{ color: 'black' }}>
-                                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                            </Button>
-                        </Box>
+  /* =======================
+     RENDER
+  ======================= */
 
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </Box >
-    );
-}
+  return (
+    <Box sx={{ width: "100%" }}>
+      {/* Stepper Header */}
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map((step, index) => (
+          <Step key={index}>
+            <StepLabel>{step.label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+
+      {/* Step Content */}
+      <Box sx={{ mt: 4 }}>{steps[activeStep].component}</Box>
+
+      {/* Navigation Buttons */}
+      <Box sx={{ mt: 4, display: "flex", justifyContent: "space-between" }}>
+        <Button
+          disabled={activeStep === 0}
+          onClick={handleBack}
+          variant="outlined"
+        >
+          Back
+        </Button>
+
+        <Button
+          onClick={handleNext}
+          variant="contained"
+          disabled={mutation.isPending}
+        >
+          {activeStep === steps.length - 1
+            ? mutation.isPending
+              ? "Generating..."
+              : "Generate Itinerary"
+            : "Next"}
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+
 export default StepperWrapper;

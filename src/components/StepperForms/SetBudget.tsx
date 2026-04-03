@@ -1,108 +1,148 @@
-import { Box, Typography, Slider, TextField, Divider } from "@mui/material";
-import ClassicButton from "../UI/ClassicButton";
-import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import {
+  Box,
+  Typography,
+  Paper,
+  Slider,
+  Button
+} from "@mui/material";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { motion } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 import { updateBasicDetails } from "../../redux/stepperFormSlice";
-import { useMutation } from "@tanstack/react-query";
-// import getGeminiResponse from '../../config/GeminiAI/geminiAi';
+import { useState } from "react";
 
 const SetBudget = () => {
-  const dispatch = useAppDispatch();
-  const basicDetails = useAppSelector(
-    (state) => state.stepperFormData?.formData?.basicDetails,
+  const dispatch = useDispatch();
+
+  const budget = useSelector(
+    (state: RootState) => state.stepperFormData.basicDetails.budget
   );
 
-  const budgetPrompt = `Based on the following trip details, estimate a total budget in INR. Respond ONLY with a number, without any currency symbol, explanation, or text.
+  const [loading, setLoading] = useState(false);
 
-    Trip Details:
-    - Destination: ${basicDetails?.destination || "Unknown"}
-    - Start Date: ${basicDetails?.startDate}
-    - End Date: ${basicDetails?.endDate}
-    - Travelers: ${basicDetails?.travelers}
-    - Trip Type: ${basicDetails?.tripType}
-
-    Output format:
-    Only a number like 32000`;
-
-  const { mutate: fetchSuggestedBudget, isPending: isBudgetPending } =
-    useMutation<string>({
-      mutationFn: () => getGeminiResponse(budgetPrompt),
-      onSuccess: (budgetData: string) => {
-        const budgetNumber = Number(budgetData);
-        if (budgetNumber >= 5000 && budgetNumber <= 200000) {
-          handleChange("budget", budgetNumber);
-        }
-      },
-    });
-
-  const handleChange = (field: string, value: string | number) => {
-    dispatch(updateBasicDetails({ [field]: value }));
+  /* =======================
+     SLIDER CHANGE
+  ======================= */
+  const handleSliderChange = (_: any, value: number | number[]) => {
+    dispatch(updateBasicDetails({ budget: value as number }));
   };
 
-  const handleSuggestBudgetBtn = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    fetchSuggestedBudget();
+  /* =======================
+     AI BUDGET (PLACEHOLDER)
+  ======================= */
+  const handleSmartBudget = async () => {
+    setLoading(true);
+
+    try {
+      // TODO: replace with backend call
+      await new Promise((res) => setTimeout(res, 1000));
+
+      const suggestedBudget = 30000;
+
+      dispatch(updateBasicDetails({ budget: suggestedBudget }));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <>
-      {/* Budget section */}
-      <Box mb={3}>
-        <Typography variant="subtitle1" fontWeight="bold">
-          Choose Your Own Budget
-        </Typography>
-        <Slider
-          value={Number(basicDetails?.budget) || 5000}
-          onChange={(e: Event, newValue: number | number[]) =>
-            handleChange("budget", newValue as number)
-          }
-          min={5000}
-          max={200000}
-          step={5000}
-          valueLabelDisplay="on"
-          sx={{
-            color: "#d6336c",
-            fontWeight: 500,
-          }}
-          marks={[
-            { value: 5000, label: "5K" },
-            { value: 50000, label: "50K" },
-            { value: 100000, label: "1L" },
-            { value: 200000, label: "2L" },
-          ]}
-        />
-        <TextField
-          type="number"
-          label="₹"
-          size="small"
-          value={basicDetails?.budget || 5000}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const newBudget = Number(e.target.value);
-            if (newBudget >= 5000 && newBudget <= 200000) {
-              handleChange("budget", newBudget);
-            }
-          }}
-          inputProps={{
-            step: 5000,
-            min: 5000,
-            max: 200000,
-            style: { width: "100px" },
-          }}
-        />
-      </Box>
-      <Box display="flex" alignItems="center" my={2}>
-        <Divider sx={{ flexGrow: 1 }} />
-        <Typography sx={{ mx: 2, color: "gray" }}>OR</Typography>
-        <Divider sx={{ flexGrow: 1 }} />
-      </Box>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          p: 5,
+          maxWidth: 720,
+          mx: "auto",
+          borderRadius: "20px",
+          background: "linear-gradient(145deg, #fffaf5, #ffffff)",
+          boxShadow: "0 12px 40px rgba(255,122,0,0.12)",
+          border: "1px solid rgba(255,122,0,0.1)"
+        }}
+      >
+        {/* Heading */}
+        <Box textAlign="center" mb={4}>
+          <Typography variant="h4" fontWeight={700}>
+            Set Your Budget 💰
+          </Typography>
 
-      <div>
-        <ClassicButton
-          onClick={() => fetchSuggestedBudget()}
-          isDisabled={isBudgetPending}
-          text="Set a Smart Budget for me"
-        />
-      </div>
-    </>
+          <Typography variant="body2" color="text.secondary">
+            Choose your budget or let AI suggest one for you
+          </Typography>
+        </Box>
+
+        {/* VALUE DISPLAY */}
+        <Box textAlign="center" mb={3}>
+          <Typography
+            variant="h3"
+            fontWeight={700}
+            sx={{
+              color: "#FF7A00"
+            }}
+          >
+            ₹ {budget || 0}
+          </Typography>
+        </Box>
+
+        {/* SLIDER */}
+        <Box px={2} mb={4}>
+          <Slider
+            value={budget || 0}
+            onChange={handleSliderChange}
+            min={1000}
+            max={100000}
+            step={1000}
+            sx={{
+              color: "#FF7A00",
+
+              "& .MuiSlider-thumb": {
+                boxShadow: "0 4px 12px rgba(255,122,0,0.4)"
+              },
+
+              "& .MuiSlider-track": {
+                background:
+                  "linear-gradient(90deg, #FF7A00, #FFB266)"
+              }
+            }}
+          />
+        </Box>
+
+        {/* AI BUTTON */}
+        <Box textAlign="center">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="contained"
+              onClick={handleSmartBudget}
+              disabled={loading}
+              startIcon={<AutoAwesomeIcon />}
+              sx={{
+                background:
+                  "linear-gradient(90deg, #FF7A00, #FF9A3C)",
+                borderRadius: "12px",
+                px: 4,
+                py: 1.2,
+                fontWeight: 600,
+                boxShadow:
+                  "0 6px 18px rgba(255,122,0,0.3)",
+
+                "&:hover": {
+                  background:
+                    "linear-gradient(90deg, #e66a00, #ff8c1a)"
+                }
+              }}
+            >
+              {loading ? "Calculating..." : "Suggest Smart Budget"}
+            </Button>
+          </motion.div>
+        </Box>
+      </Paper>
+    </motion.div>
   );
 };
 
