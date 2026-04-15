@@ -1,25 +1,19 @@
-import {
-  Box,
-  Typography,
-  Paper,
-  Slider,
-  Button
-} from "@mui/material";
+import { Box, Typography, Paper, Slider, Button } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { updateBasicDetails } from "../../redux/stepperFormSlice";
 import { useState } from "react";
+import { apiClient } from "../../config/backendAPI/apiClient";
+import { useMutation } from "@tanstack/react-query";
 
 const SetBudget = () => {
   const dispatch = useDispatch();
-
+  const form = useSelector((state: RootState) => state.stepperFormData);
   const budget = useSelector(
-    (state: RootState) => state.stepperFormData.basicDetails.budget
+    (state: RootState) => state.stepperFormData.basicDetails.budget,
   );
-
-  const [loading, setLoading] = useState(false);
 
   /* =======================
      SLIDER CHANGE
@@ -31,23 +25,32 @@ const SetBudget = () => {
   /* =======================
      AI BUDGET (PLACEHOLDER)
   ======================= */
-  const handleSmartBudget = async () => {
-    setLoading(true);
-
-    try {
-      // TODO: replace with backend call
-      await new Promise((res) => setTimeout(res, 1000));
-
-      const suggestedBudget = 30000;
-
-      dispatch(updateBasicDetails({ budget: suggestedBudget }));
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  const payload = {
+    ...form.basicDetails,
+    ...form.preferences,
   };
+  const getSmartBudget = (payload: any) => {
+    return apiClient("/api/ai/set-budget", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  };
+  const budgetMutation = useMutation({
+    mutationFn: getSmartBudget,
 
+    onSuccess: (data) => {
+      console.log("Budget:", data);
+      // dispatch to redux
+      dispatch(updateBasicDetails({ budget: data.estimatedBudget }));
+    },
+
+    onError: (err) => {
+      console.error("Budget error:", err);
+    },
+  });
+  const handleSmartBudget = () => {
+    budgetMutation.mutate(payload);
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -63,7 +66,7 @@ const SetBudget = () => {
           borderRadius: "20px",
           background: "linear-gradient(145deg, #fffaf5, #ffffff)",
           boxShadow: "0 12px 40px rgba(255,122,0,0.12)",
-          border: "1px solid rgba(255,122,0,0.1)"
+          border: "1px solid rgba(255,122,0,0.1)",
         }}
       >
         {/* Heading */}
@@ -83,7 +86,7 @@ const SetBudget = () => {
             variant="h3"
             fontWeight={700}
             sx={{
-              color: "#FF7A00"
+              color: "#FF7A00",
             }}
           >
             ₹ {budget || 0}
@@ -102,13 +105,12 @@ const SetBudget = () => {
               color: "#FF7A00",
 
               "& .MuiSlider-thumb": {
-                boxShadow: "0 4px 12px rgba(255,122,0,0.4)"
+                boxShadow: "0 4px 12px rgba(255,122,0,0.4)",
               },
 
               "& .MuiSlider-track": {
-                background:
-                  "linear-gradient(90deg, #FF7A00, #FFB266)"
-              }
+                background: "linear-gradient(90deg, #FF7A00, #FFB266)",
+              },
             }}
           />
         </Box>
@@ -119,25 +121,22 @@ const SetBudget = () => {
             <Button
               variant="contained"
               onClick={handleSmartBudget}
-              disabled={loading}
+              disabled={budgetMutation.isPending}
               startIcon={<AutoAwesomeIcon />}
               sx={{
-                background:
-                  "linear-gradient(90deg, #FF7A00, #FF9A3C)",
+                background: "linear-gradient(90deg, #FF7A00, #FF9A3C)",
                 borderRadius: "12px",
                 px: 4,
                 py: 1.2,
                 fontWeight: 600,
-                boxShadow:
-                  "0 6px 18px rgba(255,122,0,0.3)",
+                boxShadow: "0 6px 18px rgba(255,122,0,0.3)",
 
                 "&:hover": {
-                  background:
-                    "linear-gradient(90deg, #e66a00, #ff8c1a)"
-                }
+                  background: "linear-gradient(90deg, #e66a00, #ff8c1a)",
+                },
               }}
             >
-              {loading ? "Calculating..." : "Suggest Smart Budget"}
+              {budgetMutation.isPending ? "Calculating..." : "Suggest Smart Budget"}
             </Button>
           </motion.div>
         </Box>

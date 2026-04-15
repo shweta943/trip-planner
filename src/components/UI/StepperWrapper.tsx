@@ -1,15 +1,13 @@
-import React, { useMemo, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 
-// import your schemas
 import { basicDetailsSchema } from "../../schemas/basicDetails..schema";
 import { preferencesSchema } from "../../schemas/preferences.schema";
 import { apiClient } from "../../config/backendAPI/apiClient";
 
-// import components
 import BasicDetails from "../StepperForms/BasicDetails";
 import InterestAndVibes from "../StepperForms/InterestAndVibes";
 import SetBudget from "../StepperForms/SetBudget";
@@ -26,18 +24,21 @@ export interface CreateTripPayload {
   vibe: string;
 }
 
-const createTrip = (payload: CreateTripPayload) => {
-  return apiClient("/api/trips", {
+const createTrip = (payload: CreateTripPayload) =>
+  apiClient("/api/trips", {
     method: "POST",
     body: JSON.stringify(payload),
   });
-};
+
 const StepperWrapper = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [errors, setErrors] = useState<any>(null);
 
-  const stepperForm = useSelector((state: RootState) => state.stepperFormData);
+  const form = useSelector((state: RootState) => state.stepperFormData);
 
+  /* =======================
+     STEPS CONFIG
+  ======================= */
   const steps = [
     {
       label: "Basic Details",
@@ -61,31 +62,24 @@ const StepperWrapper = () => {
     },
   ];
 
-  /* =======================
-     GET STEP DATA
-  ======================= */
+  const currentStep = steps[activeStep];
 
-  const getStepData = () => {
-    switch (activeStep) {
-      case 0:
-        return stepperForm.basicDetails;
-      case 1:
-        return stepperForm.preferences;
-      default:
-        return {};
-    }
+  /* =======================
+     STEP DATA (simple & clear)
+  ======================= */
+  const getCurrentStepData = () => {
+    if (activeStep === 0) return form.basicDetails;
+    if (activeStep === 1) return form.preferences;
+    return {};
   };
 
   /* =======================
-     VALIDATION
+     VALIDATION (single source)
   ======================= */
-
-  const validateStep = () => {
-    const currentStep = steps[activeStep];
-
+  const validate = () => {
     if (!currentStep.schema) return true;
 
-    const result = currentStep.schema.safeParse(getStepData());
+    const result = currentStep.schema.safeParse(getCurrentStepData());
 
     if (!result.success) {
       setErrors(result.error.format());
@@ -99,102 +93,91 @@ const StepperWrapper = () => {
   /* =======================
      API MUTATION
   ======================= */
-
   const mutation = useMutation({
     mutationFn: createTrip,
+    onSuccess: (data: any) => {
+      console.log("Trip Created:", data);
+      // TODO: navigate(`/trip/${data.tripId}`);
+    },
+    onError: (error) => {
+      console.error("Error:", error);
+    },
   });
 
   /* =======================
-     BUILD PAYLOAD
+     PAYLOAD
   ======================= */
-
-  const buildPayload = () => {
-    return {
-      ...stepperForm.basicDetails,
-      ...stepperForm.preferences,
-    };
+  const payload: CreateTripPayload = {
+    ...form.basicDetails,
+    ...form.preferences,
   };
 
   /* =======================
-     NAVIGATION
+     NAVIGATION (single handler)
   ======================= */
-
-  const handleNext = () => {
-    const isValid = validateStep();
-
-    if (!isValid) return;
-
-    if (activeStep === steps.length - 1) {
-      handleSubmit();
-    } else {
-      setActiveStep((prev) => prev + 1);
+  const handleStep = (type: "next" | "back") => {
+    if (type === "back") {
+      setActiveStep((prev) => prev - 1);
+      return;
     }
+    // NEXT
+    if (!validate()) return;
+    const isLastStep = activeStep === steps.length - 1;
+
+    if (isLastStep) {
+      mutation.mutate(payload);
+      return;
+    }
+    setActiveStep((prev) => prev + 1);
   };
-
-  const handleBack = () => {
-    setActiveStep((prev) => prev - 1);
-  };
-
-  /* =======================
-     SUBMIT
-  ======================= */
-
-  const handleSubmit = () => {
-    const payload = buildPayload();
-
-    mutation.mutate(payload, {
-      onSuccess: (data: any) => {
-        console.log("Trip Created:", data);
-        // TODO: navigate(`/trip/${data.tripId}`)
-      },
-      onError: (error) => {
-        console.error("Error:", error);
-      },
-    });
-  };
-
-  /* =======================
-     BUTTON STATE
-  ======================= */
-
-  const isStepValid = useMemo(() => {
-    const currentStep = steps[activeStep];
-
-    if (!currentStep.schema) return true;
-
-    return currentStep.schema.safeParse(getStepData()).success;
-  }, [activeStep, stepperForm]);
 
   /* =======================
      RENDER
   ======================= */
-
   return (
     <Box sx={{ width: "100%" }}>
       {/* Stepper Header */}
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map((step, index) => (
-          <Step key={index}>
+      <Stepper
+        activeStep={activeStep}
+        alternativeLabel
+        sx={{
+          "& .MuiStepLabel-root .Mui-completed": {
+            color: "#000", // same as active
+          },
+          "& .MuiStepLabel-root .Mui-active": {
+            color: "#000",
+            fontWeight: "bold",
+          },
+          "& .MuiStepIcon-root.Mui-completed": {
+            color: "#ff6b00", // your orange
+          },
+          "& .MuiStepIcon-root.Mui-active": {
+            color: "#ff6b00",
+          },
+        }}
+      >
+        {steps.map((step, i) => (
+          <Step key={i}>
             <StepLabel>{step.label}</StepLabel>
           </Step>
         ))}
       </Stepper>
 
       {/* Step Content */}
-      <Box sx={{ mt: 4 }}>{steps[activeStep].component}</Box>
+      <Box sx={{ mt: 4 }}>{currentStep.component}</Box>
 
       {/* Navigation Buttons */}
       <Box sx={{ mt: 4, display: "flex", justifyContent: "space-between" }}>
         <Button
           disabled={activeStep === 0}
-          onClick={handleBack}
-          variant="outlined"
+          onClick={() => handleStep("back")}
+          variant="contained"
         >
           Back
         </Button>
 
         <Button
-          onClick={handleNext}
+          onClick={() => handleStep("next")}
           variant="contained"
           disabled={mutation.isPending}
         >
