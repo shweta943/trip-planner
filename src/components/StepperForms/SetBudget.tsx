@@ -39,7 +39,6 @@ const SetBudget = () => {
     mutationFn: getSmartBudget,
 
     onSuccess: (data) => {
-      console.log("Budget:", data);
       // dispatch to redux
       dispatch(updateBasicDetails({ budget: data.estimatedBudget }));
     },

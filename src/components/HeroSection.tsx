@@ -43,7 +43,7 @@ const HeroSection = ({ showSnackbar }: HeroSectionProps) => {
           transition={{ duration: 0.6 }}
           className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-600"
         >
-          Where every journey tells a Tale of Heritage
+          Every Corner of India Has a Story
         </motion.h2>
 
         {/* Subtext */}
@@ -54,8 +54,7 @@ const HeroSection = ({ showSnackbar }: HeroSectionProps) => {
           className="mt-6 text-lg md:text-xl text-gray-300"
         >
           <i>
-            Let AI craft your perfect itinerary — tailored to your vibe, budget,
-            and travel style.
+            AI-crafted itineraries tailored to your vibe, budget, and travel style.
           </i>
         </motion.p>
 
@@ -69,7 +68,7 @@ const HeroSection = ({ showSnackbar }: HeroSectionProps) => {
           className="mt-10 px-10 py-3 text-lg font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 rounded-full shadow-lg hover:shadow-orange-500/40 transition duration-300"
           onClick={handleButtonClick}
         >
-          Get Itinerary 🚀
+          Plan My Journey ✨
         </motion.button>
       </div>
     </div>

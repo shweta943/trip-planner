@@ -20,6 +20,8 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../../config/backendAPI/apiClient";
 import { useDestinationAutocomplete } from "../../hooks/useDestinationAutocomplete";
 import { useDebounce } from "../../hooks/useDebounce";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 const BasicDetails = ({ errors }: any) => {
   const dispatch = useDispatch();
@@ -164,32 +166,42 @@ const BasicDetails = ({ errors }: any) => {
             </Box>
           </Grid>
 
-          {/* DATES */}
           <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              type="date"
+            <DatePicker
               label="Start Date"
-              InputLabelProps={{ shrink: true }}
-              value={data.startDate}
-              onChange={(e) => handleChange("startDate", e.target.value)}
-              error={!!errors?.startDate}
-              helperText={errors?.startDate?._errors?.[0]}
-              sx={inputStyle}
+              value={data.startDate ? dayjs(data.startDate) : null}
+              onChange={(value) =>
+                handleChange(
+                  "startDate",
+                  value ? value.format("YYYY-MM-DD") : "",
+                )
+              }
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  error: !!errors?.startDate,
+                  helperText: errors?.startDate?._errors?.[0],
+                  sx: inputStyle,
+                },
+              }}
             />
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              type="date"
+            <DatePicker
               label="End Date"
-              InputLabelProps={{ shrink: true }}
-              value={data.endDate}
-              onChange={(e) => handleChange("endDate", e.target.value)}
-              error={!!errors?.endDate}
-              helperText={errors?.endDate?._errors?.[0]}
-              sx={inputStyle}
+              value={data.endDate ? dayjs(data.endDate) : null}
+              onChange={(value) =>
+                handleChange("endDate", value ? value.format("YYYY-MM-DD") : "")
+              }
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  error: !!errors?.endDate,
+                  helperText: errors?.endDate?._errors?.[0],
+                  sx: inputStyle,
+                },
+              }}
             />
           </Grid>
 
