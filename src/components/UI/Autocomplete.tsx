@@ -1,149 +1,76 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
-import { styled } from "@mui/material/styles";
-import debounce from "lodash.debounce";
-import { useDispatch } from "react-redux";
-import { updateBasicDetails } from "../../redux/stepperFormSlice";
-
-interface GeoapifyPlace {
-  label: string;
-  value: {
-    city?: string;
-    country?: string;
-    country_code?: string;
-    state?: string;
-    [key: string]: unknown;
-  };
-}
-
-const CssTextField = styled(TextField)({
-  "& label.Mui-focused": {
-    color: "#A0AAB4",
-  },
-  "& .MuiInput-underline:after": {
-    borderBottomColor: "#B2BAC2",
-  },
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": {
-      borderColor: "#E0E3E7",
-    },
-    "&:hover fieldset": {
-      borderColor: "#B2BAC2",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#6F7E8C",
-    },
-  },
-});
+import { useDestinationAutocomplete } from "../../hooks/useDestinationAutocomplete";
+import { useDebounce } from "../../hooks/useDebounce";
 
 interface AutocompleteDropdownProps {
-  onPlaceSelect?: (place: GeoapifyPlace) => void;
+  value: string;
+  onChange: (value: string) => void;
+  label?: string;
+  placeholder?: string;
+  error?: boolean;
+  helperText?: string;
+  startAdornment?: React.ReactNode;
+  sx?: any;
 }
 
 export default function AutocompleteDropdown({
-  onPlaceSelect,
+  value,
+  onChange,
+  label = "Destination",
+  placeholder = "Search...",
+  error = false,
+  helperText = "",
+  startAdornment,
+  sx,
 }: AutocompleteDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const [options, setOptions] = useState<GeoapifyPlace[]>([]);
-  const [input, setInput] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [selectedValue, setSelectedValue] = useState<GeoapifyPlace | null>(
-    null,
-  );
+  const { options, fetchSuggestions, loading } = useDestinationAutocomplete();
 
-  const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY as string;
+  // Debounce the typed input value to avoid calling API on every keystroke
+  const debouncedValue = useDebounce(value, 400);
 
-  const dispatch = useDispatch();
-  // const selectedDestination = useSelector((state) => state?.stepperFormData?.formData?.basicDetails?.destination);
-
-  const handleClose = () => {
-    setOpen(false);
-    setOptions([]);
-  };
-
-  const fetchPlaces = useCallback(
-    async (text: string) => {
-      setOpen(true);
-      setLoading(true);
-      try {
-        const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&apiKey=${GEOAPIFY_API_KEY}&limit=5&lang=en&filter=countrycode:in`;
-        const response = await fetch(url);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("data: ", data);
-
-          const places = data?.features?.map((item: any) => ({
-            label: item?.properties?.city,
-            value: item?.properties,
-          }));
-          setOptions(places);
-        } else {
-          console.error("Bad response from Geoapify");
-          setOptions([]);
-        }
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching places:", err);
-        setOptions([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [GEOAPIFY_API_KEY],
-  );
-
-  const debouncedFetch = useCallback(
-    debounce((text: string) => {
-      if (text) fetchPlaces(text);
-    }, 400),
-    [fetchPlaces],
-  );
   useEffect(() => {
-    debouncedFetch(input);
-    return () => debouncedFetch.cancel();
-  }, [input, debouncedFetch]);
+    if (debouncedValue && debouncedValue.length >= 2) {
+      fetchSuggestions(debouncedValue);
+    }
+  }, [debouncedValue]);
 
   return (
     <Autocomplete
-      sx={{ width: "100%" }}
-      open={open}
-      onClose={handleClose}
+      freeSolo
       options={options}
-      getOptionLabel={(option) => option.label || ""}
-      // Controlled props
-      value={selectedValue}
-      onChange={(event, newValue) => {
-        setSelectedValue(newValue);
-        if (newValue) {
-          setInput(newValue.label);
-          onPlaceSelect(newValue); // Notify parent
-          dispatch(updateBasicDetails({ destination: newValue.label }));
-        } else {
-          setInput("");
-          dispatch(updateBasicDetails({ destination: "" }));
-        }
-      }}
-      onInputChange={(event, newInputValue, reason) => {
-        if (reason === "input") {
-          setInput(newInputValue);
-        }
-      }}
-      isOptionEqualToValue={(option, value) => option.label === value?.label}
       loading={loading}
+      value={value}
+      onInputChange={(_, newInputValue, reason) => {
+        if (reason === "input") {
+          onChange(newInputValue);
+        }
+      }}
+      onChange={(_, newValue) => {
+        onChange(newValue || "");
+      }}
       renderInput={(params) => (
-        <CssTextField
+        <TextField
           {...params}
-          label="Search place in India"
-          required
+          label={label}
+          placeholder={placeholder}
+          error={error}
+          helperText={helperText}
+          sx={sx}
           InputProps={{
             ...params.InputProps,
+            startAdornment: (
+              <>
+                {startAdornment}
+                {params.InputProps.startAdornment}
+              </>
+            ),
             endAdornment: (
               <>
                 {loading ? (
-                  <CircularProgress color="inherit" size={15} />
+                  <CircularProgress color="inherit" size={20} />
                 ) : null}
                 {params.InputProps.endAdornment}
               </>

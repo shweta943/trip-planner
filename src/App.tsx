@@ -9,7 +9,6 @@ import LoaderAnimation from './components/UI/LoaderAnimation';
 import SnackBar from './components/UI/SnackBar';
 import Navbar from './components/Navbar/Navbar';
 import useAuth from './hooks/useAuth';
-import PrivateRoute from './components/Routes/PrivateRoute';
 
 const App = () => {
 

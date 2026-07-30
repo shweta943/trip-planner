@@ -7,7 +7,6 @@ import {
   Box,
   Chip,
   Tooltip,
-  Autocomplete,
 } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -15,11 +14,9 @@ import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { updateBasicDetails } from "../../redux/stepperFormSlice";
-import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../../config/backendAPI/apiClient";
-import { useDestinationAutocomplete } from "../../hooks/useDestinationAutocomplete";
-import { useDebounce } from "../../hooks/useDebounce";
+import AutocompleteDropdown from "../UI/Autocomplete";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 
@@ -34,18 +31,7 @@ const BasicDetails = ({ errors }: any) => {
     dispatch(updateBasicDetails({ [field]: value }));
   };
 
-  /* =======================
-     GEOAPIFY AUTOCOMPLETE
-  ======================= */
-  const { options, fetchSuggestions, loading } = useDestinationAutocomplete();
 
-  const debouncedDestination = useDebounce(data.destination);
-
-  useEffect(() => {
-    if (debouncedDestination) {
-      fetchSuggestions(debouncedDestination);
-    }
-  }, [debouncedDestination]);
 
   /* =======================
      AI POPULAR DESTINATIONS
@@ -88,32 +74,15 @@ const BasicDetails = ({ errors }: any) => {
         <Grid container spacing={3}>
           {/* DESTINATION */}
           <Grid item xs={12}>
-            <Autocomplete
-              freeSolo
-              options={options}
-              loading={loading}
+            <AutocompleteDropdown
               value={data.destination}
-              onInputChange={(e, value) => handleChange("destination", value)}
-              onChange={(e, value) => handleChange("destination", value)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Destination"
-                  placeholder="Search destinations..."
-                  error={!!errors?.destination}
-                  helperText={errors?.destination?._errors?.[0]}
-                  sx={inputStyle}
-                  InputProps={{
-                    ...params.InputProps,
-                    startAdornment: (
-                      <>
-                        <LocationOnIcon sx={{ mr: 1, color: "#FF7A00" }} />
-                        {params.InputProps.startAdornment}
-                      </>
-                    ),
-                  }}
-                />
-              )}
+              onChange={(value) => handleChange("destination", value)}
+              label="Destination"
+              placeholder="Search destinations..."
+              error={!!errors?.destination}
+              helperText={errors?.destination?._errors?.[0]}
+              sx={inputStyle}
+              startAdornment={<LocationOnIcon sx={{ mr: 1, color: "#FF7A00" }} />}
             />
           </Grid>
 
